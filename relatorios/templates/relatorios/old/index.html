@@ -1,0 +1,182 @@
+{% include "relatorios/base.html" %}
+
+<body>
+
+    <div class="container"> <!--Container principal que centraliza todo o conteúdo -->
+        <h1 class="form-title">Balancete</h1> <!--Título principal-->
+        <p class="form-description"> Selecione as opções abaixo para gerar um relatório.</p>
+
+
+        <form id="reportForm" action="" method="POST" enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <!--Formulário principal com ID único para manipulação via JavaScript. O atributo 
+                'id' permite que o JavaScript encontre este formulário quando for implementado -->
+
+            <div class="form-grid"> <!-- Grid container que organiza os campos em layout responsivo. A classe 'form-grid' 
+                    define o layout em CSS Grid -->
+
+            </div>
+            <div class="form-group full-width"> <!--grupo de campos, full - width faz ocupar toda a largura -->
+                <label>CONEXÃO:</label>
+                <div class="radio-group"> <!-- Container para organizar os radio buttons horizontalmente -->
+                    <label class="radio-item">
+                        <input type="radio" name="conexao" value="Banco 1" required>
+                        <span>Banco 1</span>
+                    </label>
+                    <label class="radio-item"> <!-- Radio button para Banco -->
+                        <input type="radio" name="conexao" value="Banco 2">
+                        <span>Banco 2</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="conexao" value="Banco 3">
+                        <span>Banco 3</span>
+                    </label>
+                    <label class="radio-item">
+                        <input type="radio" name="conexao" value="Banco 4">
+                        <span>Banco 4</span>
+                    </label>
+                </div>
+            </div>
+            <!--Código (CNPJ) Empresa-->
+            <div class="form-group"> <!-- Campo para inserir o código numérico da empresa -->
+                <label for="empresa">EMPRESA:</label> <!-- Label com atributo 'for' que conecta ao input pelo ID-->
+                <input type="number" id="empresa" name="empresa" placeholder="Código da empresa" required>
+                <!--'placeholder': texto de exemplo que aparece dentro do campo;'required': campo obrigatório -->
+            </div>
+
+            <!--Data Inicial -->
+            <div class="form-group"> <!-- Campo para seleção da data inicial do relatório -->
+                <label for="dataInicial">DATA INICIAL:</label>
+                <input type="date" id="dataInicial" name="dataInicial" required>
+                <!--Input de data que abre um calendário no navegador-->
+            </div>
+
+            <!--Data Final-->
+            <div class="form-group"> <!-- Campo para seleção da data final do relatório -->
+                <label for="dataFinal">DATA FINAL:</label>
+                <input type="date" id="dataFinal" name="dataFinal" required>
+
+                <!--Opções de Filtros-->
+                <div class="form-group full-width">
+                    <label>OPÇÕES:</label>
+                    <div class="checkbox-group"> <!-- Container para organizar os checkboxes verticalmente -->
+                        <!--  Checkbox para opção de desconsiderar zeramento;'type="checkbox"': permite múltiplas seleçõe';value="1"': valor enviado quando marcado )-->
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="zeramento" name="zeramento" value=1>
+                            <span>Desconsiderar Zeramento</span>
+                        </label>
+                        <!-- Checkbox para opção de desconsiderar transferência -->
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="transferencia" name="transferencia" , value=1>
+                            <span>Desconsiderar Transferência De Lucro/Prejuízo </span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <fieldset>
+                <legend>Selecione o tipo de Balancete:</legend>
+                <div>
+                    <input type="radio" id="balanceteNormal" name="balancete_tipo" value="normal">
+                    <label for="balanceteNormal">Balancete Normal</label>
+                </div>
+                <div>
+                    <input type="radio" id="balancetePlanoReferencial" name="balancete_tipo" value="plano_referencial">
+                    <label for="balancetePlanoReferencial">Balancete Plano Referencial</label>
+                </div>
+            </fieldset>
+
+            {% if relatorio_json %}
+            <table id="teste">
+                <thead>
+                    <tr>
+                        <th>Conta Lançamento</th>
+                        <th>Classificação Conta</th>
+                        <th>Descrição Conta</th>
+                        <th>Tipo Conta</th>
+                        <th>Saldo Anterior</th>
+                        <th>Débito Atual</th>
+                        <th>Crédito Atual</th>
+                        <th>Saldo Atual</th>
+                    </tr>
+                </thead>
+                <tbody>
+            {% for item in relatorio_json %}
+                <tr>
+                    <td>{{ item.contaLancamento }}</td>
+                    <td>{{ item.classificacaoConta }}</td>
+                    <td>{{ item.descricaoConta }}</td>
+                    <td>{{ item.tipoConta }}</td>
+                    <td>{{ item.saldo_anterior|floatformat:2 }}</td>
+                    <td>{{ item.debito_atual|floatformat:2 }}</td>
+                    <td>{{ item.credito_atual|floatformat:2 }}</td>
+                    <td>{{ item.saldo_atual|floatformat:2 }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+            {% endif %}
+
+
+            <div class="button-group"> <!-- Container para organizar os botões horizontalmente -->
+                <button type="submit" class="btn btn-primary">Gerar</button>
+                <!-- 'type="submit"': submete o formulário  -->
+                <button type="reset" class="btn btn-secondary">Limpar</button>
+                <!-- 'type="reset"': limpa todos os campos do formulário quando clicado-->
+            </div>
+        </form>
+    </div>
+<!-- CSS do DataTables e Buttons -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+<!-- DataTables -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+<!-- Plugins Buttons -->
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+<!-- Dependências para Excel e PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+<!-- Inicialização -->
+<script>
+  $(document).ready(function() {
+    $('#teste').DataTable({
+    paging: false, // Desativa a paginação
+    ordering: false,
+      language: {
+        url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json"
+      },
+      dom: 'Bfrtip', // Adiciona os botões no topo
+      buttons: [
+        {
+          extend: 'excelHtml5',
+          text: 'Exportar para Excel',
+          title: 'Relatorio'
+        },
+        {
+          extend: 'pdfHtml5',
+          text: 'Exportar para PDF',
+          title: 'Relatorio',
+          orientation: 'landscape',
+          pageSize: 'A4'
+        },
+        {
+          extend: 'print',
+          text: 'Imprimir'
+        }
+      ]
+    });
+  });
+</script>
+</html>

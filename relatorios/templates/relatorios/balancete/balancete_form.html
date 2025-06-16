@@ -1,0 +1,146 @@
+{% extends "relatorios/reports_form.html" %} {% load static %} {% block form %}
+<form id="reportForm" action="" method="POST" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <div class="mb-4">
+    <label class="form-label fw-bold">CONEXÃO:</label>
+    <div class="d-flex flex-wrap gap-3">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="conexao"
+          id="banco1"
+          value="Banco 1"
+          required
+        />
+        <label class="form-check-label" for="banco1">Banco 1</label>
+      </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="conexao"
+          id="banco2"
+          value="Banco 2"
+        />
+        <label class="form-check-label" for="banco2">Banco 2</label>
+      </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="conexao"
+          id="banco3"
+          value="Banco 3"
+        />
+        <label class="form-check-label" for="banco3">Banco 3</label>
+      </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="conexao"
+          id="banco4"
+          value="Banco 4"
+        />
+        <label class="form-check-label" for="banco4">Banco 4</label>
+      </div>
+    </div>
+  </div>
+  <div class="mt-4">
+    <label class="form-label fw-bold">SELECIONE O TIPO DE BALANCETE:</label>
+    <div class="d-flex flex-wrap gap-3">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="balancete_tipo"
+          id="balanceteNormal"
+          value="normal"
+          required
+        />
+        <label class="form-check-label" for="balanceteNormal">
+          Balancete Normal
+        </label>
+      </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="balancete_tipo"
+          id="balancetePlanoReferencial"
+          value="plano_referencial"
+        />
+        <label class="form-check-label" for="balancetePlanoReferencial">
+          Balancete Plano Referencial
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="row g-3">
+    <div class="col-md-4">
+      <label for="empresa" class="form-label fw-bold">EMPRESA:</label>
+      <input
+        type="number"
+        class="form-control"
+        id="empresa"
+        name="empresa"
+        placeholder="Código da empresa"
+        required
+      />
+    </div>
+    <div class="col-md-4">
+      <label for="dataInicial" class="form-label fw-bold">DATA INICIAL:</label>
+      <input
+        type="date"
+        class="form-control"
+        id="dataInicial"
+        name="dataInicial"
+        required
+      />
+    </div>
+    <div class="col-md-4">
+      <label for="dataFinal" class="form-label fw-bold">DATA FINAL:</label>
+      <input
+        type="date"
+        class="form-control"
+        id="dataFinal"
+        name="dataFinal"
+        required
+      />
+    </div>
+  </div>
+  <div class="mb-4">
+    <label class="form-label fw-bold">OPÇÕES:</label>
+    <div class="d-flex flex-wrap gap-3">
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          id="zeramento"
+          name="zeramento"
+        />
+        <label class="form-check-label" for="zeramento">
+          Desconsiderar Zeramento
+        </label>
+      </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          id="transferencia"
+          name="transferencia"
+        />
+        <label class="form-check-label" for="transferencia">
+          Desconsiderar Transferência De Lucro/Prejuízo
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="d-flex justify-content-end gap-2 mt-4">
+    <button type="reset" class="btn btn-outline-secondary">Limpar</button>
+    <button type="submit" class="btn btn-primary">Gerar</button>
+  </div>
+</form>
+{% endblock form %}

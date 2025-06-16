@@ -1,0 +1,63 @@
+/*Estilos que o bootstrap não oferece*/
+body {
+  /* O gradiente de fundo  */
+  background: linear-gradient(135deg, #a7a8b6 0%, #2b2e2b 100%);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* Opcional: se quiser usar uma fonte diferente da padrão do Bootstrap */
+}
+
+/* Classe personalizada para o container para adicionar o efeito de vidro */
+.custom-container {
+  background: rgba(194, 151, 151, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.form-title {
+  color: #131212;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Remove as setinhas do input number */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+body {
+  /* Adiciona um espaçamento no topo para não deixar o conteúdo principal atrás do cabeçalho fixo */
+  padding-top: 70px; /* Ajuste este valor se a altura do seu cabeçalho mudar */
+}
+
+/* Estilos na hora de imprimir */
+@media print {
+  /* Esconde o cabeçalho, o rodapé e os botões de ação */
+  body > header,
+  body > footer,
+  .action-buttons {
+    display: none !important;
+  }
+
+  /* Remove a margem superior do corpo para o relatório começar no topo da página impressa */
+  body {
+    padding-top: 0 !important;
+  }
+
+  /* Garante que o conteúdo do relatório ocupe toda a largura da impressão */
+  main.container {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Remove sombras e bordas do card para uma impressão mais limpa */
+  .card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+}

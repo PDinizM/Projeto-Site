@@ -1,0 +1,23 @@
+{
+  "editor.insertSpaces": true,
+  "editor.bracketPairColorization.independentColorPoolPerBracketType": false,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  // Evita formatar HTML de Django para não quebrar
+  "[django-html]": {
+    "editor.defaultFormatter": null
+  },
+
+  // (Opcional) Não formate arquivos HTML normais com Prettier se quiser mais controle
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
+  },
+
+  // Prettier: ignora espaços em HTML (evita bugs)
+  "prettier.htmlWhitespaceSensitivity": "ignore",
+
+  "material-icon-theme.folders.associations": {
+    "forms": "base"
+  }
+}

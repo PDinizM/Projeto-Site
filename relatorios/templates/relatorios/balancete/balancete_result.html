@@ -1,0 +1,62 @@
+{% extends "relatorios/reports_result.html" %}
+{% load filtros %}
+{% load mathfilters %}
+
+
+{% block conteudo %}
+
+<div class="table-responsive">
+    <table id="balancete" class="table table-striped table-hover table-sm">
+        
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Código</th>
+                <th scope="col">Classificação</th>
+                <th scope="col">Descrição da Conta</th>
+                <th scope="col">Tipo</th>
+                <th scope="col" class="text-center">Saldo Ant.</th>
+                <th scope="col"></th>
+                <th scope="col" class="text-center">Débito</th>
+                <th scope="col" class="text-center">Crédito</th>
+                <th scope="col" class="text-center">Saldo Atual</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for item in relatorio_json %}
+                <tr {% if item.tipoConta == "S" %}style="font-weight: bold;"{% endif %}>
+
+                    <td>{{ item.contaLancamento }}</td>
+
+                    <td class="text-start">{{ item.classificacaoConta }}</td>
+
+                    <td style="padding-left: {{ item.classificacaoConta|length }}0px;">
+                        {{ item.descricaoConta }}
+                    </td>
+
+                    <td>{{ item.tipoConta }}</td>
+
+                    <td class="text-end moeda-pt-br">{{ item.saldo_anterior|abs }}</td>
+
+                    <!-- Formula que coloca D e C (Saldo Anterior) -->
+                    <td class="text-center">{{ item.saldo_anterior|retornar_dc }}</td>
+
+
+                    <td class="text-end moeda-pt-br">{{ item.debito_atual|floatformat:2 }}</td>
+                    <td class="text-end moeda-pt-br">{{ item.credito_atual|floatformat:2 }}</td>
+
+                    <td class="text-end moeda-pt-br">{{ item.saldo_atual|abs|floatformat:2 }}</td>
+
+                    <!-- Formula que coloca D e C (Saldo Anterior) -->
+                    <td class="text-center">{{ item.saldo_atual|retornar_dc }}</td>
+
+                </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+
+{% endblock conteudo %}
+

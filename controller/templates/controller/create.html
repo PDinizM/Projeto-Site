@@ -1,0 +1,26 @@
+<h1>Cria Empresa</h1>
+<div>
+  <h2>Empresa</h2>
+
+  <form action="" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div>
+      <div>
+        <label>LABEL</label>
+        <input
+          type="text"
+          name="first_name"
+          maxlength="255"
+          id="id_first_name"
+        />
+      </div>
+    </div>
+
+    <div>
+      <div>
+        <button type="submit">Send</button>
+      </div>
+    </div>
+  </form>
+</div>
