@@ -1,8 +1,14 @@
+<!-- Aqui estou pegando um template html que possui variaveis e preenchendo essas variveis, dessa forma eu evito HTML repetitivo -->
 {% extends "relatorios/reports_result.html" %}
+<!-- Aqui estou importando uma "biblioteca" que eu fiz manual no intuito de nao ter muita logica no HTML, onde fiz um filtro personlizado para simplificar -->
 {% load filtros %}
+<!-- Aqui estou importando uma "biblioteca" que possui algumas funções matematicas, como abs utilizado para pegar o valor absoluto -->
 {% load mathfilters %}
 
+<!-- Aqui estou passando meu título que estou recebendo da minha view e preenchendo a variavel (dessa forma o titulo fica dinamico.)-->
+{% block title %} {{ title }} {% endblock title %}
 
+<!-- Aqui estou passando meu conteudo HTML, dessa maneira nao fico tendo que criar o restante do site -->
 {% block conteudo %}
 
 <div class="table-responsive">
@@ -24,13 +30,16 @@
         </thead>
         <tbody>
 
-            {% for item in relatorio_json %}
+            <!-- Aqui um for no meu resultado que eu pego da minha view e passo ao meu template, para preencher o table conforme a necessidade -->
+            {% for item in dados_relatorio_balancete %}
+                <!-- Caso seja sintetico ele coloca o style que deixa a linha em negrito. -->
                 <tr {% if item.tipoConta == "S" %}style="font-weight: bold;"{% endif %}>
 
                     <td>{{ item.contaLancamento }}</td>
 
                     <td class="text-start">{{ item.classificacaoConta }}</td>
 
+                    <!-- Coloca um padding-left, de acordo com a quantidade de caracteres que tem a classificação, dessa forma dá uma visualização de identação -->
                     <td style="padding-left: {{ item.classificacaoConta|length }}0px;">
                         {{ item.descricaoConta }}
                     </td>
@@ -48,7 +57,7 @@
 
                     <td class="text-end moeda-pt-br">{{ item.saldo_atual|abs|floatformat:2 }}</td>
 
-                    <!-- Formula que coloca D e C (Saldo Anterior) -->
+                    <!-- Formula que coloca D e C (Saldo Atual) -->
                     <td class="text-center">{{ item.saldo_atual|retornar_dc }}</td>
 
                 </tr>
@@ -57,6 +66,4 @@
         </tbody>
     </table>
 </div>
-
 {% endblock conteudo %}
-

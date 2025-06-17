@@ -1,0 +1,55 @@
+<!-- <!DOCTYPE html>
+<html>
+  <head>
+    <title>Formulário de Balancete</title>
+  </head>
+  <body>
+    <h1>Pesquisa de Balancete</h1>
+    <table>
+      <form method="post">
+        {% csrf_token %} {{ form.as_table }}
+        <button type="submit">Pesquisar</button>
+      </form>
+    </table>
+  </body>
+</html> -->
+
+<!-- NA VIEW (VIEWS/BALANCETE_VIEWS) EU MANDO UM FORMULARIO QUE VEM DO ARQUIVO (FORMS/FORMULARIOS.PY) ONDE É UM OBJETO, ESSE OBJETO EU CRIO OS CAMPOS POR LA. -->
+<!-- ESSE OBJETO QUE EU MANDO NA VIEW, O TEMPLATE RECEBE ISSO ATRAVES DE UMA VARIAVEL ATUALMENTE 'FORM', NISSO TEM COMO CRIAR TEMPLATES DE FORMULTARIOS DE FORMA DINAMICA -->
+<!-- E JA COM VALIDAÇÃO -->
+
+<form method="post">
+  {% csrf_token %} {% if form.non_field_errors %}
+  <div class="error">{{ form.non_field_errors }}</div>
+  {% endif %}
+
+  <legend>Conexão</legend>
+  <a
+    href="file://10.8.1.2/Publico/CERTIFICADOS/backup-certificados/13%20-%202025%2012%2014%20-%20BIOMUNDO%20RECANTO_26762081000150.pfx"
+    target="_blank"
+  >
+    Abrir certificado na rede
+  </a>
+  <fieldset>
+    <legend>Conexão</legend>
+    {{ form.conexao }}
+  </fieldset>
+
+  <label for="{{ form.dataInicial.id_for_label }}">Data Inicial:</label>
+  {{ form.dataInicial }}
+
+  <label for="{{ form.dataFinal.id_for_label }}">Data Final:</label>
+  {{ form.dataFinal }}
+
+  <fieldset>
+    <legend>{{ form.balancete_tipo.label }}</legend>
+    {{ form.balancete_tipo }}
+  </fieldset>
+
+  <label>{{ form.zeramento }} {{ form.zeramento.label }}</label>
+  <label>{{ form.transferencia }} {{ form.transferencia.label }}</label>
+
+  <label>{{form.resumo}} {{form.resumo.label}}</label>
+
+  <button type="submit">Pesquisar</button>
+</form>

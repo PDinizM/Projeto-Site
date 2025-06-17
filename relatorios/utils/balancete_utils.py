@@ -15,7 +15,7 @@ def relatorioBalanceteECF(empresa, dataInicial, dataFinal, zeramento, transferen
     sqlConsultaDebitoAtual = f"""
         SELECT
             contaLancamento = CTLANCTO_SPED_ECF_GERAL.CONTA_DEBITO,
-            debitoAtual = SUM(bethadba.ctlancto.vlor_lan)
+            debito_atual = SUM(bethadba.ctlancto.vlor_lan)
         FROM
             bethadba.CTLANCTO_SPED_ECF_GERAL
             
@@ -36,7 +36,7 @@ def relatorioBalanceteECF(empresa, dataInicial, dataFinal, zeramento, transferen
     sqlConsultaCreditoAtual = f"""
         SELECT
             contaLancamento = CTLANCTO_SPED_ECF_GERAL.CONTA_CREDITO,
-            creditoAtual = SUM(bethadba.ctlancto.vlor_lan)
+            credito_atual = SUM(bethadba.ctlancto.vlor_lan)
         FROM
             bethadba.CTLANCTO_SPED_ECF_GERAL
             
@@ -128,7 +128,7 @@ def relatorioBalanceteECF(empresa, dataInicial, dataFinal, zeramento, transferen
 
     # OBTENDO O SALDO ANTERIOR
 
-    balancete['Saldo Anterior'] = balancete['debitoAnterior'] - balancete['creditoAnterior']
+    balancete['saldo_anterior'] = balancete['debitoAnterior'] - balancete['creditoAnterior']
 
     # REMOVENDO AS COLUNAS DE ANTERIOR, POIS NÃO PRECISA MAIS DELAS
 
@@ -136,7 +136,7 @@ def relatorioBalanceteECF(empresa, dataInicial, dataFinal, zeramento, transferen
 
     # COLETANDO O SALDO ATUAL
 
-    balancete['Saldo Atual'] = balancete['Saldo Anterior'] + balancete['debitoAtual'] - balancete['creditoAtual']
+    balancete['saldo_atual'] = balancete['saldo_anterior'] + balancete['debito_atual'] - balancete['credito_atual']
 
     # FAZENDO COM QUE AS CONTAS SINTETICAS PUXE AS INFORMAÇÕES DE SUAS RESPECTIVAS ANÁLITICAS
 
@@ -150,19 +150,19 @@ def relatorioBalanceteECF(empresa, dataInicial, dataFinal, zeramento, transferen
             
             # SOMANDO AS COLUNAS 
 
-            soma_debito = contas_analiticas['debitoAtual'].sum() 
-            soma_credito = contas_analiticas['creditoAtual'].sum()
-            saldo_anterior = contas_analiticas['Saldo Anterior'].sum()
+            soma_debito = contas_analiticas['debito_atual'].sum() 
+            soma_credito = contas_analiticas['credito_atual'].sum()
+            saldo_anterior = contas_analiticas['saldo_anterior'].sum()
 
             # ADICIONA O RESULTADO NAS COLUNAS 
 
-            balancete.loc[i, 'creditoAtual'] = soma_credito
-            balancete.loc[i, 'debitoAtual'] = soma_debito
-            balancete.loc[i, 'Saldo Anterior'] = saldo_anterior
-            balancete.loc[i, 'Saldo Atual'] = saldo_anterior + soma_debito - soma_credito
+            balancete.loc[i, 'credito_atual'] = soma_credito
+            balancete.loc[i, 'debito_atual'] = soma_debito
+            balancete.loc[i, 'saldo_anterior'] = saldo_anterior
+            balancete.loc[i, 'saldo_atual'] = saldo_anterior + soma_debito - soma_credito
 
     # REMOVENDO AS COLUNAS QUE NAO MOVIMENTARAM NADA EM NENHUMA DAS 4 COLUNAS
-    balancete = balancete[(balancete['debitoAtual'] != 0) | (balancete['creditoAtual'] != 0) | (balancete['Saldo Anterior'] != 0) | (balancete['Saldo Atual'] != 0)]
+    balancete = balancete[(balancete['debito_atual'] != 0) | (balancete['credito_atual'] != 0) | (balancete['saldo_anterior'] != 0) | (balancete['saldo_atual'] != 0)]
     balancete.sort_values('classificacaoConta', inplace=True) # ORDENANDO PELA CLASSIFICAÇÃO
 
     # Formata a Classificação para ficar igual da ECF
@@ -171,7 +171,7 @@ def relatorioBalanceteECF(empresa, dataInicial, dataFinal, zeramento, transferen
 
     # COLOCANDO NA ORDEM O BALANCETE
 
-    balancete = balancete.reindex(columns=['contaLancamento', 'classificacaoConta', 'descricaoConta', 'tipoConta', 'Saldo Anterior', 'debitoAtual', 'creditoAtual', 'Saldo Atual'])
+    balancete = balancete.reindex(columns=['contaLancamento', 'classificacaoConta', 'descricaoConta', 'tipoConta', 'saldo_anterior', 'debito_atual', 'credito_atual', 'saldo_atual'])
 
     return balancete
 
@@ -184,7 +184,7 @@ def relatorioBalanceteDominio(empresa, dataInicial, dataFinal, zeramento, transf
     sqlConsultaDebitoAtual = f"""
         SELECT
             contaLancamento = bethadba.ctlancto.cdeb_lan,
-            debitoAtual = SUM(bethadba.ctlancto.vlor_lan)
+            debito_atual = SUM(bethadba.ctlancto.vlor_lan)
         FROM
             bethadba.ctlancto
             
@@ -202,7 +202,7 @@ def relatorioBalanceteDominio(empresa, dataInicial, dataFinal, zeramento, transf
     sqlConsultaCreditoAtual = f"""
         SELECT
             contaLancamento = bethadba.ctlancto.ccre_lan,
-            creditoAtual = SUM(bethadba.ctlancto.vlor_lan)
+            credito_atual = SUM(bethadba.ctlancto.vlor_lan)
         FROM
             bethadba.ctlancto
             
@@ -285,7 +285,7 @@ def relatorioBalanceteDominio(empresa, dataInicial, dataFinal, zeramento, transf
 
     # OBTENDO O SALDO ANTERIOR
 
-    balancete['Saldo Anterior'] = balancete['debitoAnterior'] - balancete['creditoAnterior']
+    balancete['saldo_anterior'] = balancete['debitoAnterior'] - balancete['creditoAnterior']
 
     # REMOVENDO AS COLUNAS DE ANTERIOR, POIS NÃO PRECISA MAIS DELAS
 
@@ -293,7 +293,7 @@ def relatorioBalanceteDominio(empresa, dataInicial, dataFinal, zeramento, transf
 
     # COLETANDO O SALDO ATUAL
 
-    balancete['Saldo Atual'] = balancete['Saldo Anterior'] + balancete['debitoAtual'] - balancete['creditoAtual']
+    balancete['saldo_atual'] = balancete['saldo_anterior'] + balancete['debito_atual'] - balancete['credito_atual']
 
     # FAZENDO COM QUE AS CONTAS SINTETICAS PUXE AS INFORMAÇÕES DE SUAS RESPECTIVAS ANÁLITICAS
 
@@ -307,20 +307,20 @@ def relatorioBalanceteDominio(empresa, dataInicial, dataFinal, zeramento, transf
             
             # SOMANDO AS COLUNAS 
 
-            soma_debito = contas_analiticas['debitoAtual'].sum() 
-            soma_credito = contas_analiticas['creditoAtual'].sum()
-            saldo_anterior = contas_analiticas['Saldo Anterior'].sum()
+            soma_debito = contas_analiticas['debito_atual'].sum() 
+            soma_credito = contas_analiticas['credito_atual'].sum()
+            saldo_anterior = contas_analiticas['saldo_anterior'].sum()
 
             # ADICIONA O RESULTADO NAS COLUNAS 
 
-            balancete.loc[i, 'creditoAtual'] = soma_credito
-            balancete.loc[i, 'debitoAtual'] = soma_debito
-            balancete.loc[i, 'Saldo Anterior'] = saldo_anterior
-            balancete.loc[i, 'Saldo Atual'] = saldo_anterior + soma_debito - soma_credito
+            balancete.loc[i, 'credito_atual'] = soma_credito
+            balancete.loc[i, 'debito_atual'] = soma_debito
+            balancete.loc[i, 'saldo_anterior'] = saldo_anterior
+            balancete.loc[i, 'saldo_atual'] = saldo_anterior + soma_debito - soma_credito
 
     # REMOVENDO AS COLUNAS QUE NAO MOVIMENTARAM NADA EM NENHUMA DAS 4 COLUNAS
 
-    balancete = balancete[(balancete['debitoAtual'] != 0) | (balancete['creditoAtual'] != 0) | (balancete['Saldo Anterior'] != 0) | (balancete['Saldo Atual'] != 0)]
+    balancete = balancete[(balancete['debito_atual'] != 0) | (balancete['credito_atual'] != 0) | (balancete['saldo_anterior'] != 0) | (balancete['saldo_atual'] != 0)]
     balancete.sort_values('classificacaoConta', inplace=True) # ORDENANDO PELA CLASSIFICAÇÃO
 
     # Formata a Classificação para ficar igual da ECF
@@ -328,12 +328,12 @@ def relatorioBalanceteDominio(empresa, dataInicial, dataFinal, zeramento, transf
     balancete['classificacaoConta'] = balancete['classificacaoConta'].apply(regraClassificacaoDominio)
     
     # ARREDONDAR PARA 2 CASAS DECIMAIS
-    colunas_valores = ['Saldo Anterior', 'debitoAtual', 'creditoAtual', 'Saldo Atual']
+    colunas_valores = ['saldo_anterior', 'debito_atual', 'credito_atual', 'saldo_atual']
     balancete[colunas_valores] = balancete[colunas_valores].round(2)
 
     # COLOCANDO NA ORDEM O BALANCETE
 
-    balancete = balancete.reindex(columns=['contaLancamento', 'classificacaoConta', 'descricaoConta', 'tipoConta', 'Saldo Anterior', 'debitoAtual', 'creditoAtual', 'Saldo Atual'])
+    balancete = balancete.reindex(columns=['contaLancamento', 'classificacaoConta', 'descricaoConta', 'tipoConta', 'saldo_anterior', 'debito_atual', 'credito_atual', 'saldo_atual'])
 
     if cruzamento_ecf == 'S':
 
@@ -422,8 +422,8 @@ def relatorioBalanceteDominio(empresa, dataInicial, dataFinal, zeramento, transf
         balancete_com_ref_analiticas = balancete_com_ref[
             (balancete_com_ref['tipoConta'] == 'A') &
             (
-                (balancete_com_ref['debitoAtual'] > 0) |
-                (balancete_com_ref['creditoAtual'] > 0)
+                (balancete_com_ref['debito_atual'] > 0) |
+                (balancete_com_ref['credito_atual'] > 0)
             )
         ]
 

@@ -1,9 +1,16 @@
-{% extends "relatorios/reports_form.html" %} {% load static %} {% block form %}
+<!-- Aqui estou pegando um template html que possui variaveis e preenchendo essas variveis, dessa forma eu evito HTML repetitivo -->
+{% extends "relatorios/reports_form.html" %} {% load static %}
+
+<!-- Aqui estou passando meu título que estou recebendo da minha view e preenchendo a variavel (dessa forma o titulo fica dinamico.)-->
+{% block title %} {{ title }} {% endblock title %}
+<!-- Aqui estou passando meu formulario HTML, dessa maneira nao fico tendo que criar o restante do site -->
+
+{% block form %}
 <form id="reportForm" action="" method="POST" enctype="multipart/form-data">
   {% csrf_token %}
 
   <div class="mb-4">
-    <label class="form-label fw-bold">CONEXÃO:</label>
+    <label class="form-label fw-bold">{{ form.conexao.label}}</label>
     <div class="d-flex flex-wrap gap-3">
       <div class="form-check">
         <input
