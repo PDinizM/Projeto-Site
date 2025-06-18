@@ -5,15 +5,16 @@
 <!-- Aqui estou importando uma "biblioteca" que possui algumas funções matematicas, como abs utilizado para pegar o valor absoluto -->
 {% load mathfilters %}
 
+{% load static %}
 <!-- Aqui estou passando meu título que estou recebendo da minha view e preenchendo a variavel (dessa forma o titulo fica dinamico.)-->
-{% block title %} {{ title }} {% endblock title %}
+{% block title %} Relatorio - {{ form_title }} {% endblock title %}
 
 <!-- Aqui estou passando meu conteudo HTML, dessa maneira nao fico tendo que criar o restante do site -->
 {% block conteudo %}
 
 <div class="table-responsive">
     <table id="balancete" class="table table-striped table-hover table-sm">
-        
+
         <thead class="table-dark">
             <tr>
                 <th scope="col">Código</th>
@@ -32,38 +33,48 @@
 
             <!-- Aqui um for no meu resultado que eu pego da minha view e passo ao meu template, para preencher o table conforme a necessidade -->
             {% for item in dados_relatorio_balancete %}
-                <!-- Caso seja sintetico ele coloca o style que deixa a linha em negrito. -->
-                <tr {% if item.tipoConta == "S" %}style="font-weight: bold;"{% endif %}>
+            <!-- Caso seja sintetico ele coloca o style que deixa a linha em negrito. -->
+            <tr {% if item.tipoConta == "S" %}style="font-weight: bold;" {% endif %}>
+                
 
-                    <td>{{ item.contaLancamento }}</td>
+                <td>{{ item.contaLancamento }}</td>
 
-                    <td class="text-start">{{ item.classificacaoConta }}</td>
+                <td class="text-start">{{ item.classificacaoConta }}</td>
 
-                    <!-- Coloca um padding-left, de acordo com a quantidade de caracteres que tem a classificação, dessa forma dá uma visualização de identação -->
-                    <td style="padding-left: {{ item.classificacaoConta|length }}0px;">
-                        {{ item.descricaoConta }}
-                    </td>
+                <!-- Coloca um padding-left, de acordo com a quantidade de caracteres que tem a classificação, dessa forma dá uma visualização de identação -->
+                <td style="padding-left: {{ item.classificacaoConta|length }}0px;">
+                    {{ item.descricaoConta }}
+                </td>
 
-                    <td>{{ item.tipoConta }}</td>
+                <td>{{ item.tipoConta }}</td>
 
-                    <td class="text-end moeda-pt-br">{{ item.saldo_anterior|abs }}</td>
+                <td class="text-end moeda-pt-br">{{ item.saldo_anterior|abs }}</td>
 
-                    <!-- Formula que coloca D e C (Saldo Anterior) -->
-                    <td class="text-center">{{ item.saldo_anterior|retornar_dc }}</td>
+                <!-- Formula que coloca D e C (Saldo Anterior) -->
+                <td class="text-center">{{ item.saldo_anterior|retornar_dc }}</td>
 
 
-                    <td class="text-end moeda-pt-br">{{ item.debito_atual|floatformat:2 }}</td>
-                    <td class="text-end moeda-pt-br">{{ item.credito_atual|floatformat:2 }}</td>
+                <td class="text-end moeda-pt-br">{{ item.debito_atual|floatformat:2 }}</td>
+                <td class="text-end moeda-pt-br">{{ item.credito_atual|floatformat:2 }}</td>
 
-                    <td class="text-end moeda-pt-br">{{ item.saldo_atual|abs|floatformat:2 }}</td>
+                <td class="text-end moeda-pt-br">{{ item.saldo_atual|abs|floatformat:2 }}</td>
 
-                    <!-- Formula que coloca D e C (Saldo Atual) -->
-                    <td class="text-center">{{ item.saldo_atual|retornar_dc }}</td>
+                <!-- Formula que coloca D e C (Saldo Atual) -->
+                <td class="text-center">{{ item.saldo_atual|retornar_dc }}</td>
 
-                </tr>
+            </tr>
             {% endfor %}
 
         </tbody>
+
+        <!-- ADICIONAR UM TFOOT QUE SERIA O RESUMO -->
+
     </table>
 </div>
 {% endblock conteudo %}
+
+{% block script_extra %}
+  {{ block.super }}
+  <script src="{% static 'js/formataMoeda.js' %}"></script>
+  <script src="{% static 'js/result_balancete.js' %}"></script>
+{% endblock script_extra %}

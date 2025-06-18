@@ -1,7 +1,7 @@
 {
   "editor.insertSpaces": true,
   "editor.bracketPairColorization.independentColorPoolPerBracketType": false,
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
 
   // Evita formatar HTML de Django para não quebrar
@@ -19,5 +19,10 @@
 
   "material-icon-theme.folders.associations": {
     "forms": "base"
-  }
+  },
+  "workbench.editor.tabSizing": "shrink",
+  "workbench.editor.labelFormat": "short",
+  "explorer.compactFolders": false,
+  "breadcrumbs.enabled": true,
+  "path-intellisense.extensionOnImport": true
 }

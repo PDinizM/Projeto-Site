@@ -1,84 +1,83 @@
 from django import forms
-from django.core.exceptions import ValidationError
 
+# ESTOU IMPORTANDO UMA FUNÇÃO QUE LÊ ARQUIVOS .SQL E O EXECUTAM RETORNANDO UM DATAFRAME.
+
+from sql.utils.sql_utils import sql_para_dataframe
+
+# ESTOU IMPORTANDO UMA FUNÇÃO PARA SE CONECTAR AOS BANCOS EXISTENTES DA DOMINIO
+
+from relatorios.utils.conexao import conectar_dominio, CONEXOES_DOMINIO
 
 # FORM BASE (BOA PARTE DOS RELATORIOS PRECISAM DESSES INPUTS)
 
 class BasePesquisaForm(forms.Form):
     
-    # Conexões Possiveis
-    
-    CONEXOES = [
-        ('Banco 1', 'Banco 1'),
-        ('Banco 2', 'Banco 2'),
-        ('Banco 3', 'Banco 3'),
-        ('Banco 4', 'Banco 4'),
-    ]
-
     # Fields 
 
     conexao = forms.ChoiceField(
-        choices=CONEXOES,
+        choices=[(c, c) for c in CONEXOES_DOMINIO],
         widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
         label='Conexão',
-        required=True
+        required=True,
+        initial="Banco 1"
     )
     
-    empresa = forms.CharField(
+    codigo_empresa = forms.CharField(
         label='Empresa',
-        help_text='Digite o código da empresa ou uma lista separada por vírgulas.',
-        widget=forms.TextInput(attrs={'class': 'form-control'}
+        required=True,
+        help_text='Informe uma lista de empresas separada por vírgulas (Ex: 1,2,3).',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'pattern': '[0-9]*',
+            'placeholder': 'Digite apenas números',
+        }
         ),
     )
 
     data_inicial = forms.DateField(
         label='Data Inicial',
         widget=forms.DateInput(attrs={'type': 'date', 'class':'form-control'}),
-        error_messages={
-            'required': 'Este campo é obrigatório.',
-            'invalid': 'Digite uma data válida.'
-        }
+        required=True
     )
 
     data_final = forms.DateField(
         label='Data Final',
         widget=forms.DateInput(attrs={'type': 'date','class':'form-control'}),
-         error_messages={
-            'required': 'Este campo é obrigatório.',
-            'invalid': 'Digite uma data válida.'
-        }
+        required=True
     )
+    
+    # CHAMANDO A FUNÇÃO CLEAN PARA CRIAR AS VALIDAÇÕES    
 
     def clean(self):
-        cleaned_data = super().clean()
-        data_inicial = cleaned_data.get('data_incial')
-        data_final = cleaned_data.get('data_final')
-
-        if data_inicial and data_final and data_final < data_inicial:
-            raise ValidationError("A data final não pode ser menor que a data inicial.")
-
-# # FORM ESPECIFICO DO BALANCETE, HERDA OS INPUTS DA BASE E INCREMENTA OS PROPRIOS.
-#     def clean_empresa(self):
-#             empresa = self.cleaned_data.get('empresa')
-#             if empresa:
-#                 # Remove espaços extras
-#                 empresa = empresa.strip()
-#                 if not empresa:
-#                     raise ValidationError("Este campo é obrigatório.")
-#             return empresa
         
-#         def clean(self):
-#             cleaned_data = super().clean()
-#             data_inicial = cleaned_data.get('dataInicial')
-#             data_final = cleaned_data.get('dataFinal')
-            
-#             if data_inicial and data_final and data_final < data_inicial:
-#                 raise ValidationError("A data final não pode ser menor que a data inicial.")
-            
-#             return cleaned_data
+        # PEGANDO OS DADOS QUE EU IREI VALIDAR
+        
+        cleaned_data = super().clean()
+        data_inicial = cleaned_data.get('data_inicial')
+        data_final = cleaned_data.get('data_final')
+        codigo_empresa = cleaned_data.get('codigo_empresa')
+        conexao = cleaned_data.get('conexao')
+        
+        # 1º VALIDAÇÃO PARA QUE A DATA_FINAL NAO SEJA MENOR QUE A DATA_INICIAL
+        if data_inicial and data_final and data_final < data_inicial:
+            self.add_error('data_final', "A data final não pode ser menor que a data inicial.")
+
+        # 2º VALIDAÇÃO VERIFICA SE A EMPRESA EXISTE NO BANCO DE DADOS
+        if codigo_empresa and conexao:
+            conexao_db = conectar_dominio(conexao)
+            df = sql_para_dataframe('dominio/empresas.sql', conexao_db, codigo_empresa)
+            conexao_db.close()
+
+            if df.empty:
+                self.add_error('codigo_empresa', 'Empresa não encontrada no banco de dados.')
+            else:
+                self.empresa = df.squeeze()
+
 
 # FORM ESPECIFICO DO BALANCETE, HERDA OS INPUTS DA BASE E INCREMENTA OS PROPRIOS.
 class BalanceteForm(BasePesquisaForm):
+    
+    titulo = 'Balancete'
     
     # Tipos de Balancete
     TIPOS_BALANCETE = [
@@ -93,29 +92,39 @@ class BalanceteForm(BasePesquisaForm):
         choices=TIPOS_BALANCETE,
         widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
         label='Tipo de Balancete',
-        error_messages={
-            'required': 'Selecione um tipo de balancete.',
-            'invalid_choice': 'Selecione um tipo de balancete válido.'
-        }
+        initial="normal"
     )
+    
+    # FIELDS OPÇÕES
     
     # Field Zeramento
     zeramento = forms.BooleanField(
-        required=False,
         label='Desconsiderar Zeramento',
+        required=False,
         widget=forms.CheckboxInput(attrs={'class':'form-check-input'})
     )
     
     # Field Transferencia
     transferencia = forms.BooleanField(
-        required=False,
         label='Desconsiderar Transferência De Lucro/Prejuízo',
+        required=False,
         widget=forms.CheckboxInput(attrs={'class':'form-check-input'})
     )
     
-    # Field Resumo
-    resumo = forms.BooleanField(
+    consolidado = forms.BooleanField(
+        label='Emitir Balancete Consolidado',
         required=False,
-        label='Emitir Resumo',
+        widget=forms.CheckboxInput(attrs={'class':'form-check-input'})
+    )
+    
+    conferencia = forms.BooleanField(
+        label='Emitir Coluna Conferência',
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class':'form-check-input'})
+    )
+    
+    resumo = forms.BooleanField(
+        label='Emitir Resumo Final',
+        required=False,
         widget=forms.CheckboxInput(attrs={'class':'form-check-input'})
     )
