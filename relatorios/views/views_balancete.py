@@ -17,143 +17,7 @@ from relatorios.forms.formularios import BalanceteForm
 
 from sql.utils.sql_utils import sql_para_dataframe
 
-# ESSA VIEW SERA MODIFICADA ASSIM QUE FOR IMPLEMENTADO O FORM VIA OBJECT FORM (O NOVO VIEW ESTA COM O NOME DE "view_exemplo")
 def balancete_relatorio_view(request):
-    
-    # REQUISIÇÃO (GET), QUANDO ESTÃO TENTANDO ACESSAR O FORM.
-    if request.method == 'GET':
-        
-        # ENVIA O FORMULARIO "BalanceteForm"
-        
-        form = BalanceteForm()
-        
-        # ENGLOBA EM UM DICT (AQUI EU MANDO O FORM, ATUALMENTE NAO ESTÁ SENDO UTILIZADO MAS IREMOS IMPLEMENTAR).
-        
-        contexto = {
-            'form': form,
-            'title': 'Balancete'
-        }
-        
-        # RENDERIZA O HTML, MANDANDO O DICIONARIO PYTHON COM AS INFORMAÇÕES
-        
-        return render(
-            request, 
-            'relatorios/balancete/balancete_form.html', 
-            contexto
-        )
-
-    dados = {k: v[0] if isinstance(v, list) else v for k, v in request.POST.lists()}
-
-    tipo_balancete = dados['balancete_tipo']
-    empresa = dados['empresa']
-    banco = dados['conexao']
-    data_inicial = dados['dataInicial']
-    data_final = dados['dataFinal']
-    transferencia = 'S' if dados.get('transferencia') else 'N'
-    zeramento = 'S' if dados.get('zeramento') else 'N'
-
-
-    conexao = conectar_dominio(banco)
-        
-    consulta_empresa = sql_para_dataframe(
-        'dominio/empresas.sql',
-        conexao,
-        empresa
-        ).iloc[0]
-    
-    cnpj = consulta_empresa['CNPJ']
-    nome_empresa = consulta_empresa['nome_emp']
-    
-
-    if tipo_balancete == 'normal':
-        relatorio = relatorioBalanceteDominio(
-            empresa, data_inicial, data_final,
-            zeramento, transferencia, conexao
-    )
-    elif tipo_balancete == 'plano_referencial':
-        relatorio = relatorioBalanceteECF(
-            empresa, data_inicial, data_final,
-            zeramento, transferencia, conexao
-    )
-
-    dados_relatorio_balancete = relatorio.to_dict(orient='records')
-
-    request.session['dados_relatorio_balancete'] = dados_relatorio_balancete
-    request.session['data_inicial'] = data_inicial
-    request.session['data_final'] = data_final
-    request.session['nome_empresa'] = nome_empresa
-    request.session['cnpj'] = cnpj
-
-    return redirect('relatorios:balancete_resultado_view')
-
-
-def balancete_resultado_view(request):
-    
-     # ESSE CODIGO NAO ESTÁ IMPLEMENTADO AINDA POR CONTA DO FORMULARIO MANUAL]
-     
-    # PEGA OS DADOS ARMAZENADOS NA SESSÃO PROVINIENTES DA MINHA VIEW PESQUISA.
-     
-    #  contexto = request.session.get('balancete_contexto')
-
-    # Caso alguem tente acessar o relatorio sem ter uma sessão preenchida já, irá ser redirecionado ao formulario.
-    
-    # if not contexto:
-    #     return redirect('relatorios:balancete_relatorio_view')
-    
-    dados_relatorio_balancete = request.session.get('dados_relatorio_balancete', [])
-    
-    if not dados_relatorio_balancete:
-        return redirect('relatorios:balancete_pesquisa_view')
-    
-    data_inicial = request.session.get('data_inicial')
-    data_final = request.session.get('data_final')
-    nome_empresa = request.session.get('nome_empresa')
-    cnpj = request.session.get('cnpj')
-
-    data_inicial_formatada = formata_data(data_inicial, '%Y-%m-%d', '%d/%m/%Y')
-    data_final_formatada = formata_data(data_final, '%Y-%m-%d', '%d/%m/%Y')
-
-    return render(request, 'relatorios/balancete/balancete_result.html', {
-        'dados_relatorio_balancete': dados_relatorio_balancete,
-        'data_inicial': data_inicial_formatada,
-        'data_final': data_final_formatada,
-        'cnpj': cnpj,
-        'nome_empresa': nome_empresa,
-    })
-
-
-def teste(request):
-    if request.method == 'POST':
-        form = BalanceteForm(request.POST)
-        if form.is_valid():
-            # Acessa os dados do formulário limpos
-            dados = form.cleaned_data
-            # Você pode agora usar esses dados para consultas, relatórios etc.
-            # Exemplo: dados['dataInicial'], dados['conexao'], etc.
-            return render(request, 'teste.html', {'form': form})
-
-    else:
-        form = BalanceteForm()
-    
-    return render(request, 'teste.html', {'form': form})
-
-
-def teste2(request):
-    if request.method == 'POST':
-        form = BalanceteForm(request.POST)
-        if form.is_valid():
-            # Acessa os dados do formulário limpos
-            dados = form.cleaned_data
-            # Você pode agora usar esses dados para consultas, relatórios etc.
-            # Exemplo: dados['dataInicial'], dados['conexao'], etc.
-            return render(request, 'relatorios/balancete/teste2.html', {'form': form})
-
-    else:
-        form = BalanceteForm()
-    return render(request, 'relatorios/balancete/teste2.html', {'form': form})    
-
-
-def view_exemplo(request):
     
     # REQUISIÇÃO (GET), QUANDO ESTÃO TENTANDO ACESSAR O FORM.
     if request.method == 'GET':
@@ -183,29 +47,66 @@ def view_exemplo(request):
     
     form = BalanceteForm(request.POST)
     if not form.is_valid():
+
+        contexto = {
+            'form': form,
+            'title': 'Balancete'
+        }
+
         return render(
             request, 
             'relatorios/balancete/balancete_form.html',
             contexto
         )
-
+    
     # DADOS DO FORMULARIO
     
-    # ESTOU APENAS PEGANDO OS DADOS DO USUARIO E INSERINDO NA MINHA FUNÇÃO.
+    # ESTOU APENAS PEGANDO OS DADOS DO USUARIO.
     
     dados = form.cleaned_data
     tipo_balancete = dados['balancete_tipo']
     codigo_empresa = dados['empresa']
     banco_id = dados['conexao']
-    data_inicial = formata_data(dados['dataInicial'], '%Y-%m-%d', '%d/%m/%Y')
-    data_final =  formata_data(dados['dataFinal'], '%Y-%m-%d', '%d/%m/%Y')
+    data_inicial = dados['data_inicial']
+    data_final =  dados['data_final']
     transferencia = 'S' if dados.get('transferencia') else 'N'
     zeramento = 'S' if dados.get('zeramento') else 'N'
+    
+    # FORMATANDO PARA A DATA QUE VEM '2024-01-01' DOS INPUTS E DEIXANDO '01/01/2024' PARA QUE POSSARMOS INSERIR NO HTML.
+    
+    data_inicial_formatado = formata_data(dados['data_inicial'], '%Y-%m-%d', '%d/%m/%Y')
+    data_final_formatado =  formata_data(dados['data_final'], '%Y-%m-%d', '%d/%m/%Y')
     
     # ME CONECTANDO AO BANCO DE DADOS SELECIONADO.
     
     conexao = conectar_dominio(banco_id)
     
+    # CONSULTANDO UM RELATORIO SQL QUE RETORNA ALGUNS DADOS DA EMPRESA.
+
+    consulta_empresa = sql_para_dataframe(
+        'dominio/empresas.sql',
+        conexao,
+        codigo_empresa
+        )
+    
+    # AQUI VALIDA SE A EMPRESA INSERIDA DE FATO EXISTE.
+        
+    if consulta_empresa.empty:
+        form.add_error('empresa', 'Empresa não encontrada no banco de dados.')
+        return render(request, 'relatorios/balancete/balancete_form.html', {
+            'form': form,
+            'title': 'Balancete'
+        })
+        
+    # PEGANDO A PRIMEIRA LINHA DO RESULTADO:
+    empresa = consulta_empresa.squeeze()
+            
+    # COLETANDO OS DADOS QUE EU QUERO
+    
+    cnpj = empresa['CNPJ']
+    nome_empresa = empresa['nome_emp']
+    
+
     # ESTOU EXECUTANDO A FUNÇÃO DEPENDENDO DO RELATORIO DESEJADO.
 
     if tipo_balancete == 'normal':
@@ -218,28 +119,15 @@ def view_exemplo(request):
             codigo_empresa, data_inicial, data_final,
             zeramento, transferencia, conexao
         )
-
-    # CONSULTANDO UM RELATORIO SQL QUE RETORNA DADOS DA EMPRESA
-
-    consulta_empresa = sql_para_dataframe(
-        'dominio/empresas.sql',
-        conexao,
-        codigo_empresa
-        ).iloc[0]
     
     # FECHANDO A CONEXÃO
     
     conexao.close()
     
-    # COLETANDO OS DADOS QUE EU QUERO
-    
-    cnpj = consulta_empresa['CNPJ']
-    nome_empresa = consulta_empresa['nome_emp']
-
     contexto = {
-        'dados': df_relatorio.to_dict(orient='records'),
-        'data_inicial': data_inicial,
-        'data_final': data_final,
+        'dados_relatorio_balancete': df_relatorio.to_dict(orient='records'),
+        'data_inicial': data_inicial_formatado,
+        'data_final': data_final_formatado,
         'nome_empresa': nome_empresa,
         'cnpj': cnpj,
     }

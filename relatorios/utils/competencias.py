@@ -22,7 +22,5 @@ def obter_intervalo_meses(data_inicial, data_final):
 
     return intervalo
 
-
-def formata_data(data, formato_atual, formato_desejado):
-    return datetime.strptime(data, formato_atual).strftime(formato_desejado)
-
+def formata_data(data, formato_atual, formato_desejado): 
+    return datetime.strptime(data, formato_atual).strftime(formato_desejado) if isinstance(data, str) else data.strftime(formato_desejado)

@@ -29,9 +29,33 @@
         <p class="form-description text-center text-muted mb-4">
           Selecione as opções abaixo para gerar um relatório.
         </p>
-        <!-- Em algum lugar por aqui iremos colocar uma div.error, onde iremos mostrar os erros de formularios. -->
 
-        {% block form %}{% endblock form %}
+        {% if form.errors %}
+        <div class="alert alert-danger" role="alert">
+          <h4 class="alert-heading">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            Erros encontrados:
+          </h4>
+          <hr />
+
+          {% if form.non_field_errors %}
+          <ul class="mb-0">
+            {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %} {% for field in form %} {% if field.errors %}
+          <ul class="mb-0">
+            {% for error in field.errors %}
+            <li>
+              <strong>{{field.label}}:</strong>
+              {{ error }}
+            </li>
+            {% endfor %}
+          </ul>
+          {% endif %} {% endfor %}
+        </div>
+        {% endif %} {% block form %}{% endblock form %}
       </div>
     </main>
 

@@ -23,7 +23,9 @@ class Empresa(models.Model):
     servico_contabil = models.BooleanField(default=False, verbose_name="Serviço Contábil")
     servico_dp = models.BooleanField(default=False, verbose_name="Serviço Departamento Pessoal")
     
-    equipe_responsavel = models.ForeignKey('Equipe', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Equipe Responsável")
+    nome_equipe = models.ForeignKey('Equipe', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Equipe Responsável")
+    
+    # nome_grupo = models.ForeignKey('Grupo', on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Grupo da Empresa')
     
     def __str__(self):
         return self.nome_empresarial
@@ -40,6 +42,17 @@ class Equipe(models.Model):
 
     def __str__(self):
         return self.nome_equipe
+    
+    
+# class GrupoEmpresas(models.Model):
+    
+#     nome_grupo = models.CharField(max_length='50')
+    
+#     def __str__(self):
+#         return self.nome_grupo
+    
+    
+    
 
 
     

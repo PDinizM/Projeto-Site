@@ -7,11 +7,11 @@ urlpatterns = [
     
     # AQUI PODERÁ TER UM MENU COM VARIOS CARD LINKANDO AOS RELATORIOS 
     
-    path('', views.balancete_relatorio_view, name='balancete_pesquisa_view'),
+    path('balancete/', views.balancete_relatorio_view, name='balancete_relatorio_view'),
     
     # AQUI TERÁ AS URLS DOS RELATORIOS, (BALANCETE, RAZAO, COMPARATIVO, CONTA VIRANDO)
-    path('balancete/', views.balancete_resultado_view, name='balancete_resultado_view'),
-    path('teste/', views.teste, name='teste'),
-    path('teste2/', views.teste2, name='teste'),
+    # path('balancete/', views.balancete_resultado_view, name='balancete_resultado_view'),
+    # path('teste/', views.teste, name='teste'),
+    # path('teste2/', views.teste2, name='teste'),
 ]
 
