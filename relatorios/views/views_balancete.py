@@ -73,10 +73,14 @@ def balancete_relatorio_view(request):
     data_final =  dados['data_final']
     transferencia = 'S' if dados.get('transferencia') else 'N'
     zeramento = 'S' if dados.get('zeramento') else 'N'
+    cruzamento_ecf = 'S' if dados.get('cruzamento_ecf') else 'N'
+    mostrar_resumo = dados.get('resumo', False)
     empresa =  getattr(form, 'empresa', None) # ESTOU PEGANDO UM ATRIBUTO DEFINIDO LA NO FORM, VISTO QUE LA EU JA CONSULTO A EMPRESA PARA VALIDAÇÃO.
+    
     cnpj = empresa['CNPJ']
     nome_empresa = empresa['nome_emp']
-    
+    mostrar_conferencia= dados.get('conferencia', False)
+
     # FORMATANDO PARA A DATA QUE VEM '2024-01-01' DOS INPUTS E DEIXANDO '01/01/2024' PARA QUE POSSARMOS INSERIR NO HTML.
     
     data_inicial_formatado = formata_data(dados['data_inicial'], '%Y-%m-%d', '%d/%m/%Y')
@@ -85,31 +89,32 @@ def balancete_relatorio_view(request):
     # ME CONECTANDO AO BANCO DE DADOS SELECIONADO.
     
     conexao = conectar_dominio(banco_id)
-
+    
     # ESTOU EXECUTANDO A FUNÇÃO DEPENDENDO DO RELATORIO DESEJADO.
 
     if tipo_balancete == 'normal':
         df_relatorio = relatorioBalanceteDominio(
             codigo_empresa, data_inicial, data_final,
-            zeramento, transferencia, conexao
+            zeramento, transferencia, conexao, cruzamento_ecf
         )
     else:
         df_relatorio = relatorioBalanceteECF(
             codigo_empresa, data_inicial, data_final,
             zeramento, transferencia, conexao
         )
-    
-    # FECHANDO A CONEXÃO
-    
-    conexao.close()
-    
+
+
     contexto = {
         'dados_relatorio_balancete': df_relatorio.to_dict(orient='records'),
         'data_inicial': data_inicial_formatado,
         'data_final': data_final_formatado,
         'nome_empresa': nome_empresa,
         'cnpj': cnpj,
-        'form_title': form.titulo
+        'form_title': form.titulo,
+        'mostrar_resumo': mostrar_resumo,
+        'cruzamento_ecf': cruzamento_ecf,
+        'mostrar_conferencia': mostrar_conferencia,
+        # 'resumo_dados': df_relatorio.to_dict(orient='records')
     }
     
     return render(

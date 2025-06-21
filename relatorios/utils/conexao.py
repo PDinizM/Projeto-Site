@@ -1,36 +1,17 @@
-import pyodbc
+from sqlalchemy import create_engine
+from sqlalchemy.engine import Engine
 
 CONEXOES_DOMINIO = {
-    "Banco 1": (
-        "DRIVER={SQL Anywhere 17};"
-        "HOST=dominio.evolucaocontabilidade.com:2638;"
-        "DBN=contabil;"
-        "UID=EXTERNO;"
-        "PWD=123456;"
-    ),
-    "Banco 2": (
-        "DRIVER={SQL Anywhere 17};"
-        "HOST=dominio-dois.evolucaocontabilidade.com:2638;"
-        "DBN=contabil;"
-        "UID=EXTERNO;"
-        "PWD=123456;"
-    ),
-    "Banco 3": (
-        "DRIVER={SQL Anywhere 17};"
-        "HOST=10.8.1.25:2638;"
-        "DBN=contabil;"
-        "UID=EXTERNO;"
-        "PWD=123456;"
-    ),
-    "Banco 4": (
-        "DRIVER={SQL Anywhere 17};"
-        "HOST=10.8.1.21:2638;"
-        "DBN=contabil;"
-        "UID=EXTERNO;"
-        "PWD=123456;"
-    )
+    "Banco 1": "sqlalchemy_sqlany://EXTERNO:123456@dominio.evolucaocontabilidade.com:2638/contabil",
+    "Banco 2": "sqlalchemy_sqlany://EXTERNO:123456@dominio-dois.evolucaocontabilidade.com:2638/contabil",
+    "Banco 3": "sqlalchemy_sqlany://EXTERNO:123456@10.8.1.25:2638/contabil",
+    "Banco 4": "sqlalchemy_sqlany://EXTERNO:123456@10.8.1.21:2638/contabil"
 }
 
-def conectar_dominio(banco):
-    conexao = pyodbc.connect(CONEXOES_DOMINIO[banco])
-    return conexao
+def conectar_dominio(banco: str) -> Engine:
+    """
+    Retorna um SQLAlchemy Engine para o banco solicitado.
+    """
+    
+    engine = create_engine(CONEXOES_DOMINIO[banco], pool_pre_ping=True)
+    return engine

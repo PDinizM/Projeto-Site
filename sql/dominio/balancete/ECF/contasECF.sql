@@ -1,0 +1,7 @@
+SELECT
+    contaLancamento = bethadba.CTCONTAS_SPED_ECF_GERAL.CODIGO_CTA_SPED_ECF_GERAL,
+    classificacaoConta = bethadba.CTCONTAS_SPED_ECF_GERAL.CLASSIFICACAO_SPED_ECF_GERAL,
+    descricaoConta = bethadba.CTCONTAS_SPED_ECF_GERAL.DESCRICAO,
+    tipoConta = bethadba.CTCONTAS_SPED_ECF_GERAL.TIPO 
+FROM
+    bethadba.CTCONTAS_SPED_ECF_GERAL 

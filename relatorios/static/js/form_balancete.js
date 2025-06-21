@@ -1,107 +1,115 @@
-// FORMULA JS QUE LIMITA O INPUT DE EMPRESA E MOSTRA O INPUT DE CONSOLIDADO
 document.addEventListener("DOMContentLoaded", () => {
-  const inputConsolidado = document.getElementById("id_consolidado");
-  const inputEmpresa = document.getElementById("id_codigo_empresa");
-  const grupoConsolidado = document.getElementById("grupo-consolidado");
-  const helpConsolidado = document.getElementById("help-multiplas-empresas");
+    const form = document.getElementById("reportForm");
+    if (!form) return;
 
-  if (!inputConsolidado || !inputEmpresa) return;
+    const elements = {
+        empresa: form.querySelector("#id_codigo_empresa"),
+        balancete_normal: form.querySelector("#id_balancete_tipo_0"),
+        balancete_referencial: form.querySelector("#id_balancete_tipo_1"),
+        cruzamento_ecf: form.querySelector("#id_cruzamento_ecf"),
+        consolidado: form.querySelector("#id_consolidado"),
+        emitir_varias_empresas: form.querySelector("#id_emitir_varias_empresas"),
+        helpMultiplasEmpresas: form.querySelector("#help-multiplas-empresas"),
+    };
 
-  function atualizarExibicaoConsolidado() {
-    const isReferencial = document.getElementById("id_balancete_tipo_1")?.checked;
+    const filterSingleCompany = (e) => {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+    };
 
-    if (isReferencial) {
-      grupoConsolidado.style.display = "block";
-    } else {
-      grupoConsolidado.style.display = "none";
+    const filterMultiCompany = (e) => {
+        let valor = e.target.value;
+        valor = valor.replace(/[^0-9,]/g, '');
+        valor = valor.replace(/^,/, '');
+        valor = valor.replace(/,+/g, ',');
+        e.target.value = valor;
+    };
 
-      if (inputConsolidado.checked) {
-        inputConsolidado.checked = false;
-        limparCampoEmpresa();
-      }
-    }
+    const updateEmpresaFieldAttributes = (state) => {
+        if (!elements.empresa) return;
 
-    atualizarHelpConsolidado();
-    atualizarAtributosEmpresa();
-  }
+        const allowMultiple = state.consolidado || state.emitir_varias_empresas;
 
-  function atualizarHelpConsolidado() {
-    if (inputConsolidado.checked && grupoConsolidado.style.display !== "none") {
-      helpConsolidado.style.display = "block";
-    } else {
-      helpConsolidado.style.display = "none";
-    }
-  }
+        elements.empresa.removeEventListener("input", filterSingleCompany);
+        elements.empresa.removeEventListener("input", filterMultiCompany);
 
-  function atualizarAtributosEmpresa() {
-    const isReferencial = document.getElementById("id_balancete_tipo_1")?.checked;
-    const isConsolidado = inputConsolidado.checked;
+        if (allowMultiple) {
+            elements.empresa.maxLength = 255;
+            elements.empresa.pattern = "^[0-9,]*[0-9]$";
+            elements.empresa.title = "Digite códigos de empresa separados por vírgula.";
+            elements.empresa.placeholder = "Ex: 1,2,3"; 
+            elements.empresa.addEventListener("input", filterMultiCompany);
+        } else {
+            elements.empresa.maxLength = 7;
+            elements.empresa.pattern = "^[0-9]+$";
+            elements.empresa.title = "Digite apenas um código com até 7 números.";
+            elements.empresa.placeholder = "Digite apenas números";
+            elements.empresa.addEventListener("input", filterSingleCompany);
+        }
+        
+        if (elements.helpMultiplasEmpresas) {
+            elements.helpMultiplasEmpresas.classList.toggle('d-none', !allowMultiple);
+        }
 
-    removerRestringidores();
+        if (elements.empresa.dataset.lastMode !== String(allowMultiple)) {
+            elements.empresa.value = "";
+        }
+        elements.empresa.dataset.lastMode = String(allowMultiple);
+    };
+    
 
-    if (isReferencial && isConsolidado) {
-      // Modo consolidado: aceita números separados por vírgula
-      inputEmpresa.setAttribute("pattern", "^(\\d+)(,\\d+)*$");
-      inputEmpresa.setAttribute("maxlength", "255");
-      inputEmpresa.setAttribute("oninvalid", "this.setCustomValidity('Digite apenas números separados por vírgula')");
-      inputEmpresa.setAttribute("oninput", "this.setCustomValidity('')");
-      inputEmpresa.setAttribute("placeholder", "");
-      inputEmpresa.addEventListener("input", bloquearNaoNumerosVirgulaValidos);
-    } else {
-      // Modo normal: apenas número
-      inputEmpresa.setAttribute("pattern", "^[0-9]+$");
-      inputEmpresa.setAttribute("maxlength", "7");
-      inputEmpresa.setAttribute("oninvalid", "this.setCustomValidity('Por favor, digite apenas números')");
-      inputEmpresa.setAttribute("oninput", "this.setCustomValidity('')");
-      inputEmpresa.setAttribute("placeholder", "Digite apenas números");
-      inputEmpresa.addEventListener("input", bloquearNaoNumeros);
-    }
-  }
+    const handleSpecialLogic = (state) => {
 
-  function limparCampoEmpresa() {
-    inputEmpresa.value = "";
-  }
+        if (state.balancete_referencial && elements.cruzamento_ecf?.checked) {
 
-  // Apenas números (modo normal)
-  function bloquearNaoNumeros(e) {
-    e.target.value = e.target.value.replace(/[^0-9]/g, '');
-  }
+            elements.cruzamento_ecf.checked = false;
+            state.cruzamento_ecf = false; 
+        }
+    };
 
-  // Números separados por vírgula, permite vírgula no final
-  function bloquearNaoNumerosVirgulaValidos(e) {
-    let valor = e.target.value;
+    const evaluateVisibilityRule = (rule, state) => {
+        const conditions = rule.split(' ');
 
-    // Remove caracteres inválidos
-    valor = valor.replace(/[^0-9,]/g, '');
+        return conditions.every(condition => {
+            const isNegative = condition.startsWith('!');
+            const key = isNegative ? condition.substring(1) : condition;
 
-    // Remove vírgulas duplicadas e no início
-    valor = valor.replace(/^,/, '');
-    valor = valor.replace(/,+/g, ',');
-    valor = valor.replace(/(,\s*,)+/g, ',');
+            if (isNegative) {
+                return !state[key];
+            } else {
 
-    e.target.value = valor;
-  }
+                return state[key];
+            }
+        });
+    };
 
-  function removerRestringidores() {
-    inputEmpresa.removeEventListener("input", bloquearNaoNumeros);
-    inputEmpresa.removeEventListener("input", bloquearNaoNumerosVirgulaValidos);
-  }
+    const updateFormState = () => {
+        const state = {
+            balancete_normal: elements.balancete_normal?.checked || false,
+            balancete_referencial: elements.balancete_referencial?.checked || false,
+            cruzamento_ecf: elements.cruzamento_ecf?.checked || false,
+            consolidado: elements.consolidado?.checked || false,
+            emitir_varias_empresas: elements.emitir_varias_empresas?.checked || false,
+        };
 
-  // Eventos
-  inputConsolidado.addEventListener("change", () => {
-    if (!inputConsolidado.checked) {
-      limparCampoEmpresa();
-    }
+        handleSpecialLogic(state);
 
-    atualizarHelpConsolidado();
-    atualizarAtributosEmpresa();
-  });
+        form.querySelectorAll("[data-show-when]").forEach(element => {
+            const rule = element.getAttribute("data-show-when");
+            const shouldBeVisible = evaluateVisibilityRule(rule, state);
+            element.classList.toggle("d-none", !shouldBeVisible);
+            
+            if (!shouldBeVisible && !element.id.includes('help')) {
+                const input = element.querySelector('input[type="checkbox"]');
+                if (input) input.checked = false;
+            }
+        });
+        
+        updateEmpresaFieldAttributes(state);
+    };
 
-  const radios = document.querySelectorAll("input[name='balancete_tipo']");
-  radios.forEach((radio) => {
-    radio.addEventListener("change", atualizarExibicaoConsolidado);
-  });
-
-  // Inicialização
-  atualizarExibicaoConsolidado();
+    form.addEventListener("change", updateFormState);
+    form.addEventListener("reset", () => {
+        setTimeout(updateFormState, 0);
+    });
+    updateFormState();
 });

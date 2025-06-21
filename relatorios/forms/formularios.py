@@ -46,33 +46,58 @@ class BasePesquisaForm(forms.Form):
         required=True
     )
     
+    emitir_varias_empresas = forms.BooleanField(
+        label="Emitir várias empresas",
+        widget=forms.CheckboxInput(attrs={'class':'form-check-input'}),
+        required=False
+    )
+    
     # CHAMANDO A FUNÇÃO CLEAN PARA CRIAR AS VALIDAÇÕES    
-
+    
     def clean(self):
         
-        # PEGANDO OS DADOS QUE EU IREI VALIDAR
-        
         cleaned_data = super().clean()
-        data_inicial = cleaned_data.get('data_inicial')
-        data_final = cleaned_data.get('data_final')
+
         codigo_empresa = cleaned_data.get('codigo_empresa')
         conexao = cleaned_data.get('conexao')
+        data_inicial = cleaned_data.get('data_inicial')
+        data_final = cleaned_data.get('data_final')
         
         # 1º VALIDAÇÃO PARA QUE A DATA_FINAL NAO SEJA MENOR QUE A DATA_INICIAL
+
         if data_inicial and data_final and data_final < data_inicial:
-            self.add_error('data_final', "A data final não pode ser menor que a data inicial.")
+            self.add_error('data_final', 'A data final não pode ser menor que a data inicial.')
+            
+        # 2º VALIDAÇÃO VERIFICA SE A EMPRESA OU A LISTA DA EMPRESAS DE FATO EXISTE NO BANCO DE DADOS.
 
-        # 2º VALIDAÇÃO VERIFICA SE A EMPRESA EXISTE NO BANCO DE DADOS
-        if codigo_empresa and conexao:
-            conexao_db = conectar_dominio(conexao)
-            df = sql_para_dataframe('dominio/empresas.sql', conexao_db, codigo_empresa)
-            conexao_db.close()
+        empresas = [e.strip() for e in codigo_empresa.split(',') if e.strip()]
+        conexao_db = conectar_dominio(conexao)
 
+        if len(empresas) == 1:
+            # Uma única empresa: validar e retornar os dados como Series
+            df = sql_para_dataframe('dominio/empresas.sql', conexao_db, {'codi_emp': empresas[0]})
             if df.empty:
                 self.add_error('codigo_empresa', 'Empresa não encontrada no banco de dados.')
             else:
-                self.empresa = df.squeeze()
+                self.empresa = df.squeeze()  # Series com os dados da empresa
+        else:
+            # Múltiplas empresas: verificar se todas existem
+            empresas_nao_encontradas = []
+            for emp in set(empresas):  # Evita repetição
+                df = sql_para_dataframe('dominio/empresas.sql', conexao_db, {'codi_emp': emp})
+                if df.empty:
+                    empresas_nao_encontradas.append(emp)
 
+            if empresas_nao_encontradas:
+                self.add_error(
+                    'codigo_empresa',
+                    f"Empresas não encontradas no banco de dados: {', '.join(empresas_nao_encontradas)}"
+                )
+            else:
+                self.empresa = empresas  # Lista com os códigos enviados
+
+        return cleaned_data
+    
 
 # FORM ESPECIFICO DO BALANCETE, HERDA OS INPUTS DA BASE E INCREMENTA OS PROPRIOS.
 class BalanceteForm(BasePesquisaForm):
@@ -125,6 +150,12 @@ class BalanceteForm(BasePesquisaForm):
     
     resumo = forms.BooleanField(
         label='Emitir Resumo Final',
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class':'form-check-input'})
+    )
+    
+    cruzamento_ecf = forms.BooleanField(
+        label='Cruzamento Plano ECF',
         required=False,
         widget=forms.CheckboxInput(attrs={'class':'form-check-input'})
     )

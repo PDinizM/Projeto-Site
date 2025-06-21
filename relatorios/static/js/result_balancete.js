@@ -36,6 +36,7 @@ $(document).ready(function () {
     table.button().add(0, {
       extend: "excelHtml5",
       title: null,
+      footer: true,
       customizeData: function (data) {
         for (var i = 0; i < data.body.length; i++) {
           let colunasNumericas = [4, 6, 7, 8]; // ajuste conforme sua tabela
