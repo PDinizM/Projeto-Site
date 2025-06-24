@@ -3,7 +3,7 @@ from controller import models
 
 @admin.register(models.Empresa)
 class EmpresaAdmin(admin.ModelAdmin):
-    list_display = 'nome_empresarial',
+    list_display = 'nome_empresarial', 'cnpj'
     
 @admin.register(models.Equipe)
 class EquipeAdmin(admin.ModelAdmin):

@@ -20,8 +20,12 @@
       <div class="report-header mb-4 border-bottom pb-3">
         <div class="row align-items-center">
           <div class="col-md-8">
+            {% if varias_empresas %}
+            <p><strong>Lista de Empresas:</strong> {{ lista_empresas }}</p>
+            {% else %}
             <h4><strong>Empresa:</strong> {{ nome_empresa }}</h4>
             <p class="mb-0"><strong>C.N.P.J:</strong> {{ cnpj }}</p>
+            {% endif %}
             <p class="mb-0"><strong>Período:</strong> {{ data_inicial }} a {{ data_final }}</p>
           </div>
           <div class="col-md-4 text-md-end">

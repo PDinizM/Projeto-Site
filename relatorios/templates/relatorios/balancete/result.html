@@ -6,11 +6,43 @@
 {% load mathfilters %}
 
 {% load static %}
+
+{% block style_extra %}
+<style>
+    @media print {
+        .report-controls {
+            display: none !important;
+        }
+        .summary-section {
+            page-break-before: always !important;
+        }
+        tr,thead,tbody,h5 {
+            page-break-inside: avoid !important;
+        }
+    }
+</style>
+{% endblock style_extra %}
+
 <!-- Aqui estou passando meu título que estou recebendo da minha view e preenchendo a variavel (dessa forma o titulo fica dinamico.)-->
 {% block title %} Relatorio - {{ form_title }} {% endblock title %}
 
 <!-- Aqui estou passando meu conteudo HTML, dessa maneira nao fico tendo que criar o restante do site -->
 {% block conteudo %}
+
+<div class="report-controls mb-4">
+    <div class="row align-items-center">
+
+        <!-- Campo de Busca Manual -->
+        <div class="col-lg-4">
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" id="customSearchInput" class="form-control" placeholder="Buscar registros...">
+            </div>
+        </div>
+    </div>
+</div>
+ 
+<div id="conteudo-para-exportar" class="p-3 border rounded ">
 
 <div class="table-responsive">
     <table id="balancete" class="table table-striped table-hover table-sm">
@@ -22,22 +54,16 @@
                 <th scope="col">Descrição da Conta</th>
                 <th scope="col">Tipo</th>
                 <th scope="col" class="text-center">Saldo Ant.</th>
-                <th scope="col"></th>
+                <th scope="col">D/C</th>
                 <th scope="col" class="text-center">Débito</th>
                 <th scope="col" class="text-center">Crédito</th>
                 <th scope="col" class="text-center">Saldo Atual</th>
-                <th scope="col"></th>
+                <th scope="col">D/C</th>
             
             {% if mostrar_conferencia %}
                 <th scope="col" class="text-center">Check</th>
             {% endif %}
 
-            {% if cruzamento_ecf == "S"%}
-                <th scope="col" class="text-center">Classificacão Ref.</th>
-                <th scope="col" class="text-center">Descrição Ref.</th>
-                <th scope="col" class="text-center">Qtd</th>
-                <th scope="col">Sem Referencial</th>            
-            {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -46,14 +72,12 @@
             <!-- Caso seja sintetico ele coloca o style que deixa a linha em negrito. -->
             <tr {% if item.tipoConta == "S" %}style="font-weight: bold;" {% endif %}>
                 
-
                 <td>{{ item.contaLancamento }}</td>
 
                 <td class="text-start">{{ item.classificacaoConta }}</td>
 
                 <!-- Coloca um padding-left, de acordo com a quantidade de caracteres que tem a classificação, dessa forma dá uma visualização de identação -->
-                <td style="padding-left: {{ item.classificacaoConta|length }}0px;">
-                    {{ item.descricaoConta }}
+                <td style="padding-left: {{ item.classificacaoConta|length }} 0px;">                {{ item.descricaoConta }}
                 </td>
 
                 <td>{{ item.tipoConta }}</td>
@@ -72,58 +96,56 @@
                 <!-- Formula que coloca D e C (Saldo Atual) -->
                 <td class="text-center">{{ item.saldo_atual|retornar_dc }}</td>
 
-
                 {% if mostrar_conferencia %}
                     <td class="text-center"><input type="checkbox" class="form-check-input" name="" id=""></td>
-                {% endif %}
-
-                {% if cruzamento_ecf == "S"%}
-                    <td>{{ item.classificacaoConta_ECF}}</td>
-                    <td>{{ item.descricaoConta_ECF}}</td>
-                    <td> {{ item.Qtd_Ref}} </td>
-                    <td>{{ item.Sem_Referencial}}</td>            
                 {% endif %}
 
             </tr>
             {% endfor %}
 
         </tbody>
-
-        {% if mostrar_resumo %}
-        <tfoot>
-    <tr class="table-group-divider">
-        <th colspan="10" class="text-center py-3 fs-5 bg-light">Resumo Do Balancete</th>
-    </tr>
-   
-    {# Loop que gera as 8 linhas #}
-    {% for item_resumo in resumo_dados %}
-        {# Lógica para criar a linha em branco de separação  #}
-        {% if item_resumo.descricao == 'spacer' %}    
-            <tr class="border-0"><td colspan="10" class="py-1 border-0"></td></tr>
-        {% else %}
-            {# Linhas de dados normais do resumo com alternância de cores #}
-            <tr class="border-0 {% cycle 'table-secondary' '' %}">
-                {# A descrição ocupa o espaço das 4 primeiras colunas para alinhar os valores #}
-                <th scope="row" colspan="4" class="text-start fw-normal ps-2">{{ item_resumo.descricao }}</th>
-               
-                {# As colunas de valores do resumo se alinham com as colunas da tabela principal. #}
-                <td class="text-end">{{ item_resumo.saldo_anterior|floatformat:2 }}</td>
-                <td class="text-center">{{ item_resumo.saldo_anterior|retornar_dc }}</td>
-                <td class="text-end">{{ item_resumo.debito|abs|floatformat:2 }}</td>
-                <td class="text-end">{{ item_resumo.credito|abs|floatformat:2 }}</td>
-                <td class="text-end">{{ item_resumo.saldo_atual|floatformat:2 }}</td>
-                <td class="text-center">{{ item_resumo.saldo_atual|retornar_dc }}</td>
-            </tr>
-        {% endif %}
-    {% endfor %}
-</tfoot>
-    {% endif %}
-</table>
+    </table>
 </div>
-{% endblock conteudo %}
 
+{% if mostrar_resumo %}
+    <div class="mt-4 summary-section">
+        <h5 class="text-center mb-3">Resumo do Balancete</h5>
+        <table id="tabela_resumo" class="table table-bordered table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th colspan="4">Descrição</th>
+                    <th class="text-end">Saldo Anterior</th>
+                    <th class="text-center">D/C</th>
+                    <th class="text-end">Débito Atual</th>
+                    <th class="text-end">Crédito Atual</th>
+                    <th class="text-end">Saldo Atual</th>
+                    <th class="text-center">D/C</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in dados_relatorio_resumo %}
+                    <tr>
+                        <td colspan="4">{{ item.descricaoConta }}</td>
+                        <td class="text-end moeda-pt-br">{{ item.saldo_anterior|abs }}</td>
+                        <td class="text-center">{{ item.saldo_anterior|retornar_dc }}</td>
+                        <td class="text-end moeda-pt-br">{{ item.debito_atual|floatformat:2 }}</td>
+                        <td class="text-end moeda-pt-br">{{ item.credito_atual|floatformat:2 }}</td>
+                        <td class="text-end moeda-pt-br">{{ item.saldo_atual|abs|floatformat:2 }}</td>
+                        <td class="text-center">{{ item.saldo_atual|retornar_dc }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+
+
+{% endblock conteudo %}
 {% block script_extra %}
   {{ block.super }}
   <script src="{% static 'js/formataMoeda.js' %}"></script>
   <script src="{% static 'js/result_balancete.js' %}"></script>
+  {% comment %} biblioteca para exportar o conteudo HTML para PDF {% endcomment %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 {% endblock script_extra %}

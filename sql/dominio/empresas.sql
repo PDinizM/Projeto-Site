@@ -22,4 +22,4 @@ SELECT
 FROM
     bethadba.geempre
 WHERE
-    bethadba.geempre.codi_emp = :codi_emp
+    bethadba.geempre.codi_emp IN :lista_empresas

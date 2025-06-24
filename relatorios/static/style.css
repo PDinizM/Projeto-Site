@@ -1,8 +1,21 @@
 /*Estilos que o bootstrap não oferece*/
+html {
+  height: 100%;
+  background: linear-gradient(135deg, #a7a8b6 0%, #2b2e2b 100%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
 body {
   /* O gradiente de fundo  */
-  background: linear-gradient(135deg, #a7a8b6 0%, #2b2e2b 100%);
+  background: transparent !important;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* Opcional: se quiser usar uma fonte diferente da padrão do Bootstrap */
+  padding-top: 70px;
+  min-height: 100vh;
+}
+
+main {
+  background: transparent;
 }
 
 /* Classe personalizada para o container para adicionar o efeito de vidro */
