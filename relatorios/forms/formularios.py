@@ -26,8 +26,9 @@ class BasePesquisaForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
-                "pattern": "[0-9]*",
-                "placeholder": "Digite apenas números",
+                "x-model": "codigo_empresa",
+                "x-on:input": "filtrarEmpresa($event)",
+                "x-bind:placeholder": "permitir_multiplas_empresas ? 'Ex: 1,2,3' : 'Digite apenas números'",
             }
         ),
     )
@@ -44,12 +45,6 @@ class BasePesquisaForm(forms.Form):
         required=True,
     )
 
-    emitir_varias_empresas = forms.BooleanField(
-        label="Emitir várias empresas",
-        widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
-        required=False,
-    )
-
     def clean(self):
         cleaned_data = super().clean()
         self._validar_datas(cleaned_data)
@@ -64,7 +59,7 @@ class BasePesquisaForm(forms.Form):
         data_inicial = data.get("data_inicial")
         data_final = data.get("data_final")
 
-        if data_final < data_inicial:
+        if data_inicial and data_final and data_final < data_inicial:
             self.add_error(
                 "data_final", "A data final não pode ser menor que a data inicial."
             )
@@ -90,6 +85,8 @@ class BasePesquisaForm(forms.Form):
             {"lista_empresas": Integer},
         )
 
+        conexao_db.dispose()
+
         encontrados = set(df_empresas["codi_emp"].astype(str))
         nao_encontrados = [e for e in lista_empresas if e not in encontrados]
 
@@ -104,7 +101,6 @@ class BasePesquisaForm(forms.Form):
         # Definir atributos para o meu formulário, permitindo que eu os recupere no futuro sem a necessidade de reconsultar ou revalidar.
         self._lista_empresas = lista_empresas
         self._df_empresas = df_empresas
-        self._varias_empresas = len(lista_empresas) > 1
 
     # Métodos utilitários para acesso aos dados validados (Poderia acessar-los diretamente, porém isso nao é o recomendado)
     def get_lista_empresas(self) -> list[str]:
@@ -113,9 +109,6 @@ class BasePesquisaForm(forms.Form):
     def get_empresas_dataframe(self) -> pd.DataFrame:
         return self._df_empresas
 
-    def is_varias_empresas(self) -> bool:
-        return self._varias_empresas
-
 
 # FORM ESPECIFICO DO BALANCETE, HERDA OS INPUTS DA BASE E INCREMENTA OS PROPRIOS.
 class BalanceteForm(BasePesquisaForm):
@@ -123,8 +116,8 @@ class BalanceteForm(BasePesquisaForm):
 
     # Tipos de Balancete
     TIPOS_BALANCETE = [
-        ("normal", "Balancete Normal"),
-        ("plano_referencial", "Balancete Plano Referencial"),
+        ("DOMINIO", "Balancete Normal"),
+        ("ECF", "Balancete Plano Referencial"),
     ]
 
     # Fields
@@ -132,9 +125,11 @@ class BalanceteForm(BasePesquisaForm):
     # Field Tipo Balancete
     balancete_tipo = forms.ChoiceField(
         choices=TIPOS_BALANCETE,
-        widget=forms.RadioSelect(attrs={"class": "form-check-input"}),
+        widget=forms.RadioSelect(
+            attrs={"class": "form-check-input", "x-model": "balancete_tipo"}
+        ),
         label="Tipo de Balancete",
-        initial="normal",
+        initial="DOMINIO",
     )
 
     # FIELDS OPÇÕES
@@ -156,7 +151,9 @@ class BalanceteForm(BasePesquisaForm):
     consolidado = forms.BooleanField(
         label="Emitir Balancete Consolidado",
         required=False,
-        widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        widget=forms.CheckboxInput(
+            attrs={"class": "form-check-input", "x-model": "consolidado"}
+        ),
     )
 
     conferencia = forms.BooleanField(
@@ -174,30 +171,7 @@ class BalanceteForm(BasePesquisaForm):
     cruzamento_ecf = forms.BooleanField(
         label="Cruzamento Plano ECF",
         required=False,
-        widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        widget=forms.CheckboxInput(
+            attrs={"class": "form-check-input", "x-model": "cruzamento_ecf"}
+        ),
     )
-
-    def clean(self):
-        cleaned_data = super().clean()
-        self._validar_consolidado_e_varias_empresas(cleaned_data)
-        return cleaned_data
-
-    def _validar_consolidado_e_varias_empresas(self, data: dict) -> None:
-        """
-        Valida se a pessoa mandou só 1 empresa quando deveria ser uma lista de empresas e vice-versa.
-        """
-        consolidado = data.get("consolidado", False)
-        emitir_varias = data.get("emitir_varias_empresas", False)
-        varias_empresas = self.is_varias_empresas()
-
-        if (consolidado or emitir_varias) and not varias_empresas:
-            self.add_error(
-                "codigo_empresa",
-                "Para gerar relatório consolidado ou múltiplas empresas, é necessário informar pelo menos duas empresas distintas.",
-            )
-
-        elif varias_empresas and not (consolidado or emitir_varias):
-            self.add_error(
-                "codigo_empresa",
-                "Por favor, selecione a opção de relatório consolidado ou múltiplas empresas ao informar mais de uma empresa.",
-            )

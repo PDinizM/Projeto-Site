@@ -7,9 +7,8 @@ html {
 }
 
 body {
-  /* O gradiente de fundo  */
   background: transparent !important;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* Opcional: se quiser usar uma fonte diferente da padrão do Bootstrap */
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   padding-top: 70px;
   min-height: 100vh;
 }
@@ -41,36 +40,365 @@ input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
-
-body {
-  /* Adiciona um espaçamento no topo para não deixar o conteúdo principal atrás do cabeçalho fixo */
-  padding-top: 70px; /* Ajuste este valor se a altura do seu cabeçalho mudar */
-}
-
-/* Estilos na hora de imprimir */
+/* Impressão*/
 @media print {
-  /* Esconde o cabeçalho, o rodapé e os botões de ação */
-  body > header,
-  body > footer,
-  .action-buttons {
+  @page {
+    size: A4 portrait;
+    margin: 1.5cm;
+  }
+
+  /* Remove elementos que não devem aparecer */
+  header,
+  footer,
+  nav,
+  .btn,
+  .report-controls,
+  .input-group,
+  .dataTables_filter,
+  .dataTables_paginate,
+  .dataTables_length,
+  .dataTables_info,
+  .d-print-none {
     display: none !important;
   }
 
-  /* Remove a margem superior do corpo para o relatório começar no topo da página impressa */
+  /* Remove qualquer fundo de tela */
+  html,
   body {
-    padding-top: 0 !important;
+    background: white !important;
   }
 
-  /* Garante que o conteúdo do relatório ocupe toda a largura da impressão */
-  main.container {
-    max-width: 100%;
-    margin: 0;
-    padding: 0;
+  /* Garante que o container principal se expanda corretamente */
+  #conteudo-para-exportar {
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: white !important;
+    overflow: visible !important;
   }
 
-  /* Remove sombras e bordas do card para uma impressão mais limpa */
-  .card {
+  /* Estilização das informações do cabeçalho (Empresa, CNPJ etc.) */
+  #conteudo-para-exportar > *:first-child {
+    width: 100% !important;
+    display: block;
+    text-align: left;
+    margin-bottom: 1rem;
+  }
+
+  /* Tabelas */
+  table {
+    width: 100% !important;
+    table-layout: auto !important;
+    border-collapse: collapse !important;
+    font-size: 10px !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  tfoot {
+    display: table-footer-group !important;
+  }
+
+  th,
+  td {
+    padding: 2px 5px !important;
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
     border: none !important;
-    box-shadow: none !important;
+    vertical-align: middle !important;
   }
+
+  /* Estilização das colunas principais (ajuste as larguras conforme necessário) */
+  th:nth-child(1),
+  td:nth-child(1) {
+    width: 6%;
+  }
+  th:nth-child(2),
+  td:nth-child(2) {
+    width: 10%;
+  }
+  th:nth-child(3),
+  td:nth-child(3) {
+    width: 18%;
+  }
+  th:nth-child(4),
+  td:nth-child(4) {
+    width: 6%;
+    text-align: center;
+  }
+  th:nth-child(5),
+  td:nth-child(5),
+  th:nth-child(7),
+  td:nth-child(7),
+  th:nth-child(8),
+  td:nth-child(8),
+  th:nth-child(9),
+  td:nth-child(9) {
+    width: 10%;
+    text-align: right;
+  }
+  th:nth-child(6),
+  td:nth-child(6),
+  th:nth-child(10),
+  td:nth-child(10) {
+    width: 4%;
+    text-align: center;
+  }
+
+  /* Zebra stripes */
+  .table-striped > tbody > tr:nth-of-type(odd) > td {
+    background-color: #f8f9fa !important;
+  }
+
+  /* Mantém as cores (ex: header escuro) */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 1.2cm;
+  }
+
+  /* Oculta elementos que não devem aparecer na impressão */
+  header,
+  footer,
+  nav,
+  .btn,
+  .input-group,
+  .report-controls,
+  .dataTables_filter,
+  .dataTables_paginate,
+  .dataTables_length,
+  .dataTables_info,
+  .d-print-none {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    font-size: 10px !important;
+  }
+
+  /* Container principal do conteúdo */
+  #conteudo-para-exportar {
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Cabeçalho dinâmico (empresa, CNPJ etc.) */
+  .info-relatorio {
+    width: 100%;
+    margin-bottom: 12px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* Remove restrição de rolagem e colapso */
+  .table-responsive {
+    overflow: visible !important;
+  }
+
+  table {
+    width: 100% !important;
+    table-layout: auto !important;
+    border-collapse: collapse !important;
+    word-break: break-word;
+  }
+
+  th,
+  td {
+    border: none !important;
+    padding: 4px 6px !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  thead {
+    display: table-header-group !important;
+    background-color: #343a40 !important;
+    color: white !important;
+  }
+
+  tfoot {
+    display: table-footer-group !important;
+  }
+
+  .table-striped > tbody > tr:nth-of-type(odd) > td {
+    background-color: #f8f9fa !important;
+  }
+
+  /* Evita quebra no meio de linhas longas */
+  tr {
+    page-break-inside: avoid !important;
+  }
+}
+
+/*Estilos para o Overlay de Carregamento */
+#loading-overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(167, 168, 182, 0.95) 0%,
+    rgba(129, 133, 129, 0.95) 100%
+  );
+  backdrop-filter: blur(10px);
+  z-index: 9999; /* z-index do Bootstrap pode não ser alto o suficiente, então mantemos aqui */
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Padding, alinhamento de texto, borda e sombra foram movidos para as classes do Bootstrap.
+  Apenas o fundo customizado, a animação e o posicionamento relativo permanecem.
+*/
+.loading-content {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(20px);
+  animation: slideInUp 0.5s ease-out;
+  position: relative;
+  z-index: 10;
+  max-width: 400px;
+  width: 90%;
+}
+
+/* A animação 'pulse' foi removida. Use-a apenas se o seu ícone não for animado. */
+/* .loading-logo {
+  animation: pulse 2s infinite;
+} 
+*/
+
+.loading-progress {
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: rgba(108, 107, 107, 0.1);
+}
+
+.loading-progress .progress-bar {
+  border-radius: 10px;
+}
+
+/* Animações (Inalteradas) */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+/* Ondas decorativas (Inalteradas) */
+.loading-waves {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.wave {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(108, 117, 125, 0.1) 0%,
+    transparent 70%
+  );
+  animation: waveAnimation 3s infinite ease-in-out;
+}
+
+.wave1 {
+  width: 300px;
+  height: 300px;
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+}
+.wave2 {
+  width: 200px;
+  height: 200px;
+  top: 60%;
+  right: 15%;
+  animation-delay: 1s;
+}
+.wave3 {
+  width: 150px;
+  height: 150px;
+  bottom: 20%;
+  left: 60%;
+  animation-delay: 2s;
+}
+
+@keyframes waveAnimation {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+    opacity: 0.1;
+  }
+}
+
+/* Responsividade e Classes de Estado (Inalteradas) */
+@media (max-width: 576px) {
+  .loading-content {
+    /* O padding já é responsivo com as classes do Bootstrap, mas podemos ajustar se necessário */
+    margin: 1rem;
+  }
+  h4 {
+    /* Ajustando o tamanho da fonte para telas menores */
+    font-size: 1.3rem;
+  }
+  .loading-progress {
+    width: 250px;
+  }
+}
+
+body.loading-active {
+  overflow: hidden;
+}
+body.loading-active * {
+  pointer-events: none;
+}
+body.loading-active #loading-overlay {
+  pointer-events: all;
 }

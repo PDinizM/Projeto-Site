@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br" class="h-100">
 
@@ -5,29 +6,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}{% endblock %}</title>
-  
+ 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
   <link rel="icon" href="https://www.evolucaoauditoria.com.br/wp-content/uploads/2025/01/cropped-evolucao-auditoria-favicon-270x270.png" type="image/png">
-<style>
-
-    html {
-      height: 100%;
-      background: linear-gradient(135deg, #a7a8b6 0%, #2b2e2b 100%) !important;
-      background-attachment: fixed !important;
-      background-repeat: no-repeat !important;
-    }
-    
-    body {
-      background: transparent !important;
-      min-height: 100vh !important;
-    }
-    
-    main {
-      background: transparent !important;
-    }
-  </style>
+  
+  <!-- SEU CSS PERSONALIZADO -->
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+ 
+  <!-- Alpine.js -->
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  
   {% block head_extra %}{% endblock %}
 </head>
 
@@ -35,10 +25,13 @@
   <!-- NAVBAR GLOBAL -->
   <header>{% include "global/navbar.html" %}</header>
 
-  <!-- TODO HTML QUE FOR INICIADO SERA NECESSARIO DEFINIR O MAIN -->
+  <!-- LOADING OVERLAY - MOVER PARA CIMA -->
+  {% include "global/loading_overlay.html" %}
+
+  <!-- CONTEÚDO PRINCIPAL -->
   <main class="flex-shrink-0">
   {% block content %}
-  <!-- Conteúdo principal da página -->
+
   {% endblock %}
   </main>
 
@@ -46,7 +39,7 @@
     <div class="container">
       <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
         <div class="mb-2 mb-md-0">
-          <small>&copy; {% now "Y" %}Evolução. Todos os direitos reservados.</small>
+          <small>&copy; {% now "Y" %} Evolução. Todos os direitos reservados.</small>
         </div>
       </div>
     </div>
@@ -59,7 +52,10 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.min.js"
     integrity="sha384-7qAoOXltbVP82dhxHAUje59V5r2YsVfBafyUDxEdApLPmcdhBPg1DKg1ERo0BZlK"
     crossorigin="anonymous"></script>
-  {% block script_extra %}{% endblock %}
+  
+  <script src="{% static 'global/js/loader.js' %}"></script>
+  {% block script_extra %}
+  {% endblock %}
 </body>
 
 </html>

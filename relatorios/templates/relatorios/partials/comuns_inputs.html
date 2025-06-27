@@ -1,4 +1,6 @@
 <!--Input Conexão -->
+{{ form.data|json_script:"form-inicial" }}
+
 <div class ="mb-4"> 
     <label class ="form-label fw-bold"> {{form.conexao.label}}</label>
     <div class="d-flex flex wrap gap-3">
@@ -20,7 +22,7 @@
             {{form.codigo_empresa.label}}
         </label>
         {{ form.codigo_empresa }}
-        <div id="help-multiplas-empresas" class="form-text mt-2 d-none" data-show-when="consolidado cruzamento_ecf"> 
+         <div class="form-text mt-2">
             <small class= "form-text text-muted">
                 <i class="bi bi-info-circle"> {{form.codigo_empresa.help_text}}</i>
             </small>

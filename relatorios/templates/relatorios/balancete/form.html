@@ -1,102 +1,108 @@
 <!-- Aqui estou pegando um template html que possui variaveis e preenchendo essas variveis, dessa forma eu evito HTML repetitivo -->
-{% extends "relatorios/reports_form.html" %} {% load static %}
-
+{% extends "relatorios/reports_form.html" %} 
+{% load static %}
 <!-- Aqui estou passando meu formulario HTML, dessa maneira nao fico tendo que criar o restante do site -->
-
 {% block form %}
-<form id="reportForm" action="" method="POST" enctype="multipart/form-data">
-  {% csrf_token %}
 
+<form action="" method="POST" enctype="multipart/form-data" id="reportForm" 
+x-data="reportForm(JSON.parse(document.getElementById('form-inicial').textContent))" 
+x-init="init()"
+>
+
+  {% csrf_token %}
+  
   {% include "relatorios/partials/comuns_inputs.html" %}
 
   <hr class="my-4">
-  
+
+  <!-- Tipo de balancete -->
   <div class="mt-4">
     <label class="form-label fw-bold">{{ form.balancete_tipo.label}}</label>
-    <div class="d-flex flex-wrap gap-3 pb-3">
-      {% for field in form.balancete_tipo %}
-      <div class="form-check">
-        {{ field.tag }}
-        <label class="form-check-label" for="{{ field.id_for_label }}">
-          {{ field.choice_label }}
-        </label>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-
-    {# Seção: Oções de Balancete #}
-    <div class="mb-4">
-      <label class="form-label fw-bold">Opções</label>
-      <div class="row g-3">
-
-      {#Cada grupo de campo tem um ID único e um atributo 'data-show-when' (interpretado pelo JS) #}
-        <div id="grupo-zeramento" class="col-md-4 mb-3" data-show-when="!cruzamento_ecf">
-          <div class="form-check">
-            {{form.zeramento}}
-            <label class="form-check-label" for="{{form.zeramento.id_for_label}}">
-              {{form.zeramento.label}}
-            </label>
-          </div> 
-        </div>
-
-        <div id="grupo-transferencia" class="col-md-4 mb-3" data-show-when="!cruzamento_ecf">
-          <div class ="form-check">
-            {{ form.transferencia }}
-            <label class="form-check-label" for="{{ form.transferencia.id_for_label }}">
-              {{ form.transferencia.label }}
-            </label>
-          </div>
-        </div>
-
-        <div id="grupo-resumo" class="col-md-4 mb-3" data-show-when="!cruzamento_ecf">
-          <div class="form-check">
-            {{ form.resumo }}
-            <label class="form-check-label" for="{{ form.resumo.id_for_label }}">
-              {{ form.resumo.label }}
-            </label>
-          </div>
-        </div>
-
-        <div id="grupo-conferencia" class ="col-md-4 mb-3" data-show-when="balancete_normal !cruzamento_ecf">
-          <div class="form-check">
-            {{ form.conferencia}}
-          <label class="form-check-label" for="{{ form.conferencia.id_for_label }}">
-            {{ form.conferencia.label }}
+      <div class="d-flex flex-wrap gap-3 pb-3">
+        {% for field in form.balancete_tipo %}
+        <div class="form-check">
+          {{ field.tag }}
+          <label class="form-check-label" for="{{ field.id_for_label }}">
+            {{ field.choice_label }}
           </label>
         </div>
+        {% endfor %}
       </div>
+  </div>
 
-      <div id="grupo-cruzamento-ecf" class ="col-md-4 mb-3" data-show-when="balancete_normal">
-        <div class ="form-check">
-          {{ form.cruzamento_ecf }}
+  <div class="mb-4">
+    <label class="form-label fw-bold">Opções</label>
+  <div class="row g-3">
+
+    <!-- Zeramento -->
+    <div class="col-md-4 mb-3">
+      <div class="form-check">
+        {{ form.zeramento }}
+        <label class="form-check-label" for="{{ form.zeramento.id_for_label }}">
+          {{ form.zeramento.label }}
+        </label>
+      </div>
+    </div>
+
+
+    <!-- Transferência -->
+    <div class="col-md-4 mb-3">
+      <div class="form-check">
+        {{ form.transferencia }}
+        <label class="form-check-label" for="{{ form.transferencia.id_for_label }}">
+          {{ form.transferencia.label }}
+        </label>
+      </div>
+    </div>
+
+    <!-- Resumo -->
+    <div class="col-md-4 mb-3">
+      <div class="form-check">
+        {{ form.resumo }}
+        <label class="form-check-label" for="{{ form.resumo.id_for_label }}">
+          {{ form.resumo.label }}
+        </label>
+      </div>
+    </div>
+
+
+    <!-- Conferência -->
+    <div class="col-md-4 mb-3">
+      <div class="form-check">
+        {{ form.conferencia }}
+        <label class="form-check-label" for="{{ form.conferencia.id_for_label }}">
+          {{ form.conferencia.label }}
+        </label>
+      </div>
+    </div>
+
+    <!-- Cruzamento ECF -->
+    <template x-if="balancete_normal">
+      <div class="col-md-4 mb-3">
+        <div class="form-check">
+          {{form.cruzamento_ecf}}
           <label class="form-check-label" for="{{ form.cruzamento_ecf.id_for_label }}">
             {{ form.cruzamento_ecf.label }}
           </label>
         </div>
       </div>
+    </template>
 
-      <div id="grupo-emitir-varias-empresas" class="col-md-4 mb-3" data-show-when="cruzamento_ecf">
-                <div class="form-check">
-                    {# Garanta que 'emitir_varias_empresas' existe no seu BalanceteForm em forms.py #}
-                    {{ form.emitir_varias_empresas }}
-                    <label class="form-check-label" for="{{ form.emitir_varias_empresas.id_for_label }}">
-                        {{ form.emitir_varias_empresas.label }}
-                    </label>
-                </div>
-      </div>
 
-      <div id="grupo-consolidado" class ="col-md-4 mb-3" data-show-when="balancete_referencial">
-        <div class ="form-check">
-          {{ form.consolidado }}
+    <!-- Consolidado -->
+    <template x-if="balancete_referencial">
+      <div class="col-md-4 mb-3">
+        <div class="form-check">
+          {{form.consolidado}}
           <label class="form-check-label" for="{{ form.consolidado.id_for_label }}">
             {{ form.consolidado.label }}
           </label>
         </div>
       </div>
+    </template>
+
     </div>
   </div>
-
 
   <div class="mb-4"></div>
   <div class="d-flex justify-content-end gap-2 mt-4">
@@ -106,8 +112,11 @@
 </div>
 
 </form>
+
 {% endblock form %}
 
+
 {% block script_extra %}
-  <script src="{% static 'js/form_balancete.js' %}"></script>
+  <script src="{% static 'js/report_form.js' %}"></script>
 {% endblock script_extra %}
+

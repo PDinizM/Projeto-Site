@@ -52,6 +52,9 @@
     "javascript": "javascriptreact",
     "typescript": "typescriptreact"
   },
+  "material-icon-theme.folders.associations": {
+    "mixin": "Class"
+  },
 
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"

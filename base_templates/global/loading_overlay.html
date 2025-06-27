@@ -1,0 +1,39 @@
+<!-- Este é o componetnte de overlay de carragamento global. 
+Ele fica oculto por padrão e é ativado por JavaScript.  -->
+{% load static %}
+
+<div id="loading-overlay" class="d-none position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
+  
+  <div class="loading-content text-center p-5 rounded-4 shadow-lg">
+
+    <div class="mb-4">
+      <img src="{% static 'global/img/logo_animada.gif' %}" 
+           alt="Logo da Empresa" 
+           style="width: 60px; height: auto;">
+    </div>
+
+    <div class="spinner-border text-dark mb-3" role="status" style="width: 4rem; height: 4rem;">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+
+    <h4 class="fw-semibold text-dark mb-2">Gerando Relatório</h4>
+    <p class="text-muted mb-3">Por favor, aguarde enquanto processamos seus dados...</p>
+
+    <div class="progress loading-progress mb-3 mx-auto" style="width: 300px; height: 6px;">
+      <div class="progress-bar progress-bar-striped progress-bar-animated bg-dark" 
+           role="progressbar" style="width: 100%"></div>
+    </div>
+  
+    <small class="text-muted">
+      <i class="bi bi-info-circle me-1"></i>
+      Este processo pode levar alguns minutos
+    </small>
+  </div>
+
+  <div class="loading-waves">
+    <div class="wave wave1"></div>
+    <div class="wave wave2"></div>
+    <div class="wave wave3"></div>
+  </div>
+</div>
+

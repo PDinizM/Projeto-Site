@@ -1,16 +1,49 @@
+from dataclasses import dataclass
+from datetime import date
 from typing import List, Literal, Union
 
 import pandas as pd
+from django.http import HttpRequest
 from sqlalchemy.engine import Engine
 
+from relatorios.forms.formularios import BalanceteForm
 from relatorios.utils.classificacoes import (
     regraClassificacaoDominio,
     regraClassificacaoECF,
 )
-from relatorios.utils.conexao import conectar_dominio
 from sql.utils.sql_utils import sql_para_dataframe
 
 
+@dataclass
+class BalanceteContext:
+    """
+    Container para todos os dados necessários para geração do balancete
+    """
+
+    request: HttpRequest
+    form: BalanceteForm
+    tipo_balancete: Literal["ECF", "DOMINIO"]
+    data_inicial: date
+    data_final: date
+    mostrar_conferencia: bool
+    mostrar_resumo: bool
+    df_empresas: pd.DataFrame
+    empresas: Union[str, List[str]]
+    conexao: Engine
+    transferencia: bool = False
+    zeramento: bool = False
+    cruzamento_ecf: bool = False
+    consolidado: bool = False
+
+    def __post_init__(self):
+        if isinstance(self.data_inicial, date):
+            self.data_inicial = self.data_inicial.strftime("%Y-%m-%d")
+
+        if isinstance(self.data_final, date):
+            self.data_final = self.data_final.strftime("%Y-%m-%d")
+
+
+# Classe de erro
 class BalanceteEmptyError(Exception):
     """Exceção lançada quando nenhum balancete é gerado."""
 
@@ -27,17 +60,7 @@ class Balancete:
     """
 
     @staticmethod
-    def gerar(
-        tipo: Literal["ECF", "DOMINIO"],
-        empresas: Union[str, List[str]],
-        data_inicial: str,
-        data_final: str,
-        conexao: Engine,
-        zeramento: bool = False,
-        transferencia: bool = False,
-        cruzamento_ecf: bool = False,
-        consolidado: bool = False,
-    ) -> pd.DataFrame:
+    def gerar(params: BalanceteContext) -> pd.DataFrame:
         """
         Gera um balancete contábil no formato especificado, para uma ou mais empresas.
 
@@ -68,42 +91,44 @@ class Balancete:
         pd.DataFrame ou List[pd.DataFrame]
             DataFrame(s) com o(s) balancete(s) gerado(s)
         """
-        if consolidado and tipo != "ECF":
+        if params.consolidado and params.tipo_balancete != "ECF":
             raise ValueError("A consolidação só está disponível para o tipo ECF")
 
         # Gera uma lista
         lista_codigos_empresas = (
-            [empresas] if isinstance(empresas, str) else empresas.copy()
+            [params.empresas]
+            if isinstance(params.empresas, str)
+            else params.empresas.copy()
         )
 
         lista_balancetes = []
 
         for codigo_empresa in lista_codigos_empresas:
-            if tipo == "ECF":
+            if params.tipo_balancete == "ECF":
                 df_balancete = Balancete._gerar_ecf(
                     empresa=codigo_empresa,
-                    data_inicial=data_inicial,
-                    data_final=data_final,
-                    zeramento=zeramento,
-                    transferencia=transferencia,
-                    conexao=conexao,
+                    data_inicial=params.data_inicial,
+                    data_final=params.data_final,
+                    zeramento=params.zeramento,
+                    transferencia=params.transferencia,
+                    conexao=params.conexao,
                 )
-            elif tipo == "DOMINIO":
+            elif params.tipo_balancete == "DOMINIO":
                 df_balancete = Balancete._gerar_dominio(
                     empresa=codigo_empresa,
-                    data_inicial=data_inicial,
-                    data_final=data_final,
-                    zeramento=zeramento,
-                    transferencia=transferencia,
-                    conexao=conexao,
-                    cruzamento_ecf=cruzamento_ecf,
+                    data_inicial=params.data_inicial,
+                    data_final=params.data_final,
+                    zeramento=params.zeramento,
+                    transferencia=params.transferencia,
+                    conexao=params.conexao,
+                    cruzamento_ecf=params.cruzamento_ecf,
                 )
             else:
                 raise ValueError(
-                    f"Tipo de balancete inválido: {tipo}. Use 'ECF' ou 'DOMINIO'"
+                    f"Tipo de balancete inválido: {params.tipo_balancete}. Use 'ECF' ou 'DOMINIO'"
                 )
 
-            if not consolidado:
+            if not params.consolidado:
                 df_balancete.insert(0, "Cód. Empresa", codigo_empresa)
 
             lista_balancetes.append(df_balancete)
@@ -113,7 +138,7 @@ class Balancete:
 
         df_resultado = pd.concat(lista_balancetes, ignore_index=True)
 
-        if consolidado:
+        if params.consolidado:
             df_resultado = Balancete._consolidar_balancete(df_resultado)
 
         return df_resultado
@@ -514,21 +539,3 @@ class Balancete:
         )
 
         return balancete_consolidado
-
-
-conexao = conectar_dominio("Banco 2")
-empresa = ["2109", "2110"]
-data_inicial = "2025-01-01"
-data_final = "2025-12-31"
-Balancete.gerar(
-    tipo="DOMINIO",
-    empresas=empresa,
-    data_inicial=data_inicial,
-    data_final=data_final,
-    conexao=conexao,
-    zeramento=True,
-    transferencia=False,
-    cruzamento_ecf=True,
-).to_excel(r"C:\Users\pedrodiniz\Downloads\teste\teste.xlsx", index=False)
-
-conexao.dispose()

@@ -26,7 +26,7 @@
             <h4><strong>Empresa:</strong> {{ nome_empresa }}</h4>
             <p class="mb-0"><strong>C.N.P.J:</strong> {{ cnpj }}</p>
             {% endif %}
-            <p class="mb-0"><strong>Período:</strong> {{ data_inicial }} a {{ data_final }}</p>
+            <p class="mb-0"><strong>Período:</strong> {{ data_inicial|date:"d/m/Y" }} a {{ data_final|date:"d/m/Y" }}</p>
           </div>
           <div class="col-md-4 text-md-end">
             <small><strong>Emissão:</strong> {% now "d/m/Y" %}</small><br />

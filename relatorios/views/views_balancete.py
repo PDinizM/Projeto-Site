@@ -1,17 +1,14 @@
+import json
 from dataclasses import dataclass
 from typing import Any, Callable, List
 
 import pandas as pd
+from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from sqlalchemy.engine import Engine
 
 from relatorios.forms.formularios import BalanceteForm
-from relatorios.utils.balancete_utils import (
-    gerar_balancete,
-    relatorioBalanceteDominio,
-    relatorioBalanceteECF,
-)
 from relatorios.utils.competencias import formata_data
 from relatorios.utils.conexao import conectar_dominio
 from relatorios.utils.export_utils import dataframe_para_excel_response
@@ -39,8 +36,13 @@ class BalanceteContexto:
 
 def balancete_relatorio_view(request: HttpRequest) -> HttpResponse:
     # SE FOR GET PEGA MEU FORMULARIO CRIADO, SE FOR POST MANDA MEU FORMULARIO PARA AS VALIDAÇÕES.
+    dados_anteriores = request.session.get("balancete_form_inputs")
 
-    form = BalanceteForm() if request.method == "GET" else BalanceteForm(request.POST)
+    form = (
+        BalanceteForm(dados_anteriores)
+        if request.method == "GET"
+        else BalanceteForm(request.POST)
+    )
 
     # SE FOR GET, RENDERIZA O FORMULARIO SE FOR POST E NAO FOR ERRO RENDERIZA O FORMULARIO COM ERRO.
     if request.method == "GET" or not form.is_valid():
@@ -54,32 +56,42 @@ def balancete_relatorio_view(request: HttpRequest) -> HttpResponse:
     """
     dados = form.cleaned_data
 
-    balancete_dados = BalanceteContexto(
-        request=request,
-        form=form,
-        tipo_balancete=dados["balancete_tipo"],
-        data_inicial=dados["data_inicial"],
-        data_final=dados["data_final"],
-        transferencia=dados.get("transferencia", False),
-        zeramento=dados.get("zeramento", False),
-        cruzamento_ecf=dados.get("cruzamento_ecf", False),
-        consolidado=dados.get("consolidado", False),
-        emitir_varias_empresas=dados.get("emitir_varias_empresas", False),
-        mostrar_conferencia=dados.get("conferencia", False),
-        mostrar_resumo=dados.get("resumo", False),
-        df_empresas=form.get_empresas_dataframe(),
-        lista_empresas=form.get_lista_empresas(),
-        varias_empresas=form.is_varias_empresas(),
-        conexao=conectar_dominio(dados["conexao"]),
-    )
+    # Mantem meu formulario preenchido na sessão para quando ele entrar novamente der certo
+    serialized_data = json.loads(json.dumps(dados, cls=DjangoJSONEncoder))
+    request.session["balancete_form_inputs"] = serialized_data
 
-    if balancete_dados.consolidado:
-        return _handle_consolidado(balancete_dados)
+    engine: Engine = conectar_dominio(dados["conexao"])
 
-    if balancete_dados.emitir_varias_empresas or balancete_dados.cruzamento_ecf:
-        return _handle_cruzamento_ecf(balancete_dados)
+    try:
+        balancete_dados = BalanceteContexto(
+            request=request,
+            form=form,
+            tipo_balancete=dados["balancete_tipo"],
+            data_inicial=dados["data_inicial"],
+            data_final=dados["data_final"],
+            transferencia=dados.get("transferencia", False),
+            zeramento=dados.get("zeramento", False),
+            cruzamento_ecf=dados.get("cruzamento_ecf", False),
+            consolidado=dados.get("consolidado", False),
+            emitir_varias_empresas=dados.get("emitir_varias_empresas", False),
+            mostrar_conferencia=dados.get("conferencia", False),
+            mostrar_resumo=dados.get("resumo", False),
+            df_empresas=form.get_empresas_dataframe(),
+            lista_empresas=form.get_lista_empresas(),
+            varias_empresas=form.is_varias_empresas(),
+            conexao=engine,
+        )
 
-    return _handle_normal(balancete_dados)
+        if balancete_dados.consolidado:
+            return _handle_consolidado(balancete_dados)
+
+        if balancete_dados.emitir_varias_empresas or balancete_dados.cruzamento_ecf:
+            return _handle_cruzamento_ecf(balancete_dados)
+
+        return _handle_normal(balancete_dados)
+
+    finally:
+        engine.dispose()
 
 
 ####################################################################################################
@@ -157,11 +169,38 @@ def _gerar_balancetes_multiplas_empresas(
     return pd.concat(dfs, ignore_index=True)
 
 
+import pandas as pd
+
+
 def _gerar_resumo_balancete(balancete: pd.DataFrame) -> pd.DataFrame:
+    """
+    Gera um DataFrame-resumo contendo:
+      • o corpo principal (contas de 1 a 4);
+      • linhas extras para CONTAS DEVEDORAS, CONTAS CREDORAS,
+        RESULTADO DO MÊS e RESULTADO DO EXERCÍCIO.
+
+    ─────────────────────────────────────────────────────────────
+    REGRAS — RESULTADO DO MÊS
+    ─────────────────────────────────────────────────────────────
+    saldo_anterior = 0
+    credito_atual  = (crédito - débito) das contas de dígito 3
+    debito_atual   = (crédito - débito) das contas de dígito 4
+    saldo_atual    = (credito_atual + debito_atual) × (-1)
+
+    ─────────────────────────────────────────────────────────────
+    REGRAS — RESULTADO DO EXERCÍCIO
+    ─────────────────────────────────────────────────────────────
+    saldo_anterior = saldo_anterior_4 + saldo_anterior_3
+    debito_atual   = saldo_atual das contas 4
+    credito_atual  = saldo_atual das contas 3
+    saldo_atual    = debito_atual + credito_atual
+    """
+    # 1. Mantém só as contas 1-4 no corpo principal
     df_resumo = balancete[
         balancete["classificacaoConta"].isin(["1", "2", "3", "4"])
     ].copy()
 
+    # 2. Linhas de soma das contas devedoras e credoras
     devedoras = df_resumo[df_resumo["classificacaoConta"].isin(["1", "4"])][
         ["debito_atual", "credito_atual", "saldo_anterior", "saldo_atual"]
     ].sum()
@@ -170,10 +209,41 @@ def _gerar_resumo_balancete(balancete: pd.DataFrame) -> pd.DataFrame:
         ["debito_atual", "credito_atual", "saldo_anterior", "saldo_atual"]
     ].sum()
 
-    resultado_mes = df_resumo[df_resumo["classificacaoConta"].isin(["3", "4"])][
-        ["debito_atual", "credito_atual", "saldo_anterior", "saldo_atual"]
-    ].sum()
+    # 3. Cálculo do resultado do mês
+    contas_4 = df_resumo[df_resumo["classificacaoConta"] == "4"]
+    contas_3 = df_resumo[df_resumo["classificacaoConta"] == "3"]
 
+    credito_atual_res = contas_3["credito_atual"].sum() - contas_3["debito_atual"].sum()
+    debito_atual_res = contas_4["credito_atual"].sum() - contas_4["debito_atual"].sum()
+    saldo_final_res = (credito_atual_res + debito_atual_res) * -1
+
+    resultado_mes = pd.Series(
+        {
+            "debito_atual": abs(debito_atual_res),
+            "credito_atual": abs(credito_atual_res),
+            "saldo_anterior": 0,
+            "saldo_atual": saldo_final_res,
+        }
+    )
+
+    # 4. Cálculo do resultado do exercício
+    saldo_anterior_res_exercicio = (
+        contas_4["saldo_anterior"].sum() + contas_3["saldo_anterior"].sum()
+    )
+    debito_atual_res_exercicio = contas_4["saldo_atual"].sum()
+    credito_atual_res_exercicio = contas_3["saldo_atual"].sum()
+    saldo_final_res_exercicio = debito_atual_res_exercicio + credito_atual_res_exercicio
+
+    resultado_exercicio = pd.Series(
+        {
+            "debito_atual": abs(debito_atual_res_exercicio),
+            "credito_atual": abs(credito_atual_res_exercicio),
+            "saldo_anterior": saldo_anterior_res_exercicio,
+            "saldo_atual": saldo_final_res_exercicio,
+        }
+    )
+
+    # 5. Constrói as quatro linhas extras e devolve o DataFrame final
     linhas_extra = pd.DataFrame(
         [
             {
@@ -193,9 +263,16 @@ def _gerar_resumo_balancete(balancete: pd.DataFrame) -> pd.DataFrame:
             {
                 "contaLancamento": "",
                 "classificacaoConta": "",
-                "descricaoConta": "RESULTADO DO EXERCÍCIO",
+                "descricaoConta": "RESULTADO DO MÊS",
                 "tipoConta": "",
                 **resultado_mes,
+            },
+            {
+                "contaLancamento": "",
+                "classificacaoConta": "",
+                "descricaoConta": "RESULTADO DO EXERCÍCIO",
+                "tipoConta": "",
+                **resultado_exercicio,
             },
         ]
     )
