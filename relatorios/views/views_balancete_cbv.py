@@ -8,6 +8,7 @@ from relatorios.mixin.mixins import FormSessionMixin
 from relatorios.utils.balancete import Balancete, BalanceteContext
 from relatorios.utils.conexao import conectar_dominio
 from relatorios.utils.export_utils import dataframe_para_excel_response
+from relatorios.utils.resumo import Resumo
 
 
 class BalanceteRelatorioView(FormSessionMixin, TemplateView):
@@ -48,14 +49,20 @@ class BalanceteRelatorioView(FormSessionMixin, TemplateView):
     def get_template_names(self) -> str:
         """Determina qual template deve ser renderizado com base no estado da view."""
 
-        if hasattr(self, "balancete_context") and not hasattr(self, "form_has_errors"):
-            return self.template_result
-        return self.template_form
+        return (
+            self.template_result
+            if hasattr(self, "balancete_context")
+            and not hasattr(self, "form_has_errors")
+            else self.template_form
+        )
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
         if hasattr(self, "balancete_context"):
+            # context['report_context'] = self.balancete_context
+            # context['balancete'] = self.balancete_context.balancete_dict
+            # context['resumo']
             context.update(
                 {
                     "form_title": self.balancete_context.form.titulo,
@@ -67,12 +74,13 @@ class BalanceteRelatorioView(FormSessionMixin, TemplateView):
                     "nome_empresa": self.balancete_context.df_empresas.loc[
                         0, "nome_emp"
                     ],
-                    "dados_relatorio_balancete": kwargs["balancete"].to_dict(
-                        orient="records"
-                    ),
+                    "codigo_empresa": self.balancete_context.df_empresas.loc[
+                        0, "codi_emp"
+                    ],
+                    "dados_relatorio_balancete": self.balancete_context.balancete_dict,
+                    "dados_relatorio_resumo": self.balancete_context.resumo_balancete_dict,
                 }
             )
-
         if "form" in kwargs:
             context["form"] = kwargs["form"]
             context["form_title"] = kwargs["form"].titulo
@@ -89,26 +97,27 @@ class BalanceteRelatorioView(FormSessionMixin, TemplateView):
         """
         self.store_form_data(request, form)
 
+        self.balancete_context = self._create_balancete_context(form)
+
         try:
-            self.balancete_context = self._create_balancete_context(form)
             balancete = Balancete.gerar(self.balancete_context)
-            if (
-                len(self.balancete_context.empresas) > 1
-                and not self.balancete_context.consolidado
-            ) or self.balancete_context.cruzamento_ecf:
+
+            if self.balancete_context.mostrar_resumo:
+                resumo = Resumo(balancete).gerar()
+                self.balancete_context.resumo_balancete = resumo
+
+            self.balancete_context.balancete = balancete
+
+            if self._should_export_to_excel():
                 return dataframe_para_excel_response(balancete)
 
-            else:
-                return self.render_to_response(
-                    self.get_context_data(form=form, balancete=balancete)
-                )
+            return self.render_to_response(self.get_context_data())
 
         except Exception as e:
             return self._handle_error(form=form, message=str(e))
 
         finally:
-            if hasattr(self, "balancete_dados"):
-                self.balancete_context.conexao.dispose()
+            self._dispose_connection()
 
     # 5. Métodos auxiliares específicos
     def _create_balancete_context(self, form: BalanceteForm) -> BalanceteContext:
@@ -133,10 +142,22 @@ class BalanceteRelatorioView(FormSessionMixin, TemplateView):
             conexao=engine,
         )
 
-    # 6. Handlers de erro
+    # 6. Handlers
     def _handle_error(self, form=None, message=None) -> HttpResponse:
         """Lida com erros durante o processamento do formulário."""
         if message and form:
             form.add_error(None, message)
         self.form_has_errors = True
         return self.render_to_response(self.get_context_data(form=form))
+
+    def _should_export_to_excel(self) -> bool:
+        """Verifica se deve exportar para Excel."""
+        return (
+            len(self.balancete_context.empresas) > 1
+            and not self.balancete_context.consolidado
+        ) or self.balancete_context.cruzamento_ecf
+
+    def _dispose_connection(self):
+        """Desfaz a conexão se existir."""
+        if hasattr(self, "balancete_context"):
+            self.balancete_context.conexao.dispose()

@@ -11,7 +11,13 @@
 {% endblock style_extra %}
 
 <!-- Aqui estou passando meu título que estou recebendo da minha view e preenchendo a variavel (dessa forma o titulo fica dinamico.)-->
-{% block title %} Relatorio - {{ form_title }} {% endblock title %}
+{% block title %} 
+  {% if consolidado %}
+    Consolidado - {{ form_title }}
+  {% else %}
+    {{ codigo_empresa }} - {{ form_title }}
+  {% endif %}
+{% endblock title %}
 
 <!-- Aqui estou passando meu conteudo HTML, dessa maneira nao fico tendo que criar o restante do site -->
 {% block conteudo %}
@@ -161,10 +167,9 @@
 
 
 {% endblock conteudo %}
-{% block script_extra %}
-  {{ block.super }}
-  <script src="{% static 'js/formataMoeda.js' %}"></script>
-  <script src="{% static 'js/result_balancete.js' %}"></script>
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script> -->
 
-{% endblock script_extra %}
+{% block scripts_extra %}
+  {{ block.super }}
+    <script src="{% static 'js/formataMoeda.js' %}"></script>
+    <script src="{% static 'js/result_balancete.js' %}"></script>
+{% endblock %}

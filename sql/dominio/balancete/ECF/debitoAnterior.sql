@@ -10,6 +10,7 @@ INNER JOIN bethadba.ctlancto ON
     
 WHERE
     CTLANCTO_SPED_ECF_GERAL.CODI_EMP = :codi_emp AND
+    CTLANCTO.CDEB_LAN <> 0 AND
     CTLANCTO_SPED_ECF_GERAL.CONTA_DEBITO <> 0 AND
     ctlancto.data_lan < :data_inicial
     

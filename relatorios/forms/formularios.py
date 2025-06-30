@@ -22,13 +22,12 @@ class BasePesquisaForm(forms.Form):
     codigo_empresa = forms.CharField(
         label="Empresa",
         required=True,
-        help_text="Informe uma lista de empresas separada por vírgulas (Ex: 1,2,3).",
+        help_text="Para multiplas empresas informe uma lista de empresas separada por vírgulas (Ex: 1,2,3).",
         widget=forms.TextInput(
             attrs={
                 "class": "form-control",
-                "x-model": "codigo_empresa",
                 "x-on:input": "filtrarEmpresa($event)",
-                "x-bind:placeholder": "permitir_multiplas_empresas ? 'Ex: 1,2,3' : 'Digite apenas números'",
+                "x-model": "codigo_empresa",
             }
         ),
     )
@@ -68,10 +67,17 @@ class BasePesquisaForm(forms.Form):
         """
         Valida se as empresas existem
         """
+
+        self._df_empresas = pd.DataFrame()
+        self._lista_empresas = []
         codigo_empresa = data.get("codigo_empresa")
         conexao = data.get("conexao")
 
         # Remove espaços, ignora vazios e garante unicidade
+        if not codigo_empresa or not codigo_empresa.strip():
+            self.add_error("codigo_empresa", "Informe pelo menos uma empresa.")
+            return
+
         lista_empresas = sorted(
             {e.strip() for e in codigo_empresa.split(",") if e.strip()}
         )
@@ -159,19 +165,46 @@ class BalanceteForm(BasePesquisaForm):
     conferencia = forms.BooleanField(
         label="Emitir Coluna Conferência",
         required=False,
-        widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        widget=forms.CheckboxInput(
+            attrs={"class": "form-check-input", "x-model": "conferencia"}
+        ),
     )
 
     resumo = forms.BooleanField(
         label="Emitir Resumo Final",
         required=False,
-        widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        widget=forms.CheckboxInput(
+            attrs={"class": "form-check-input", "x-model": "resumo"}
+        ),
     )
 
     cruzamento_ecf = forms.BooleanField(
         label="Cruzamento Plano ECF",
         required=False,
         widget=forms.CheckboxInput(
-            attrs={"class": "form-check-input", "x-model": "cruzamento_ecf"}
+            attrs={
+                "class": "form-check-input",
+                "x-model": "cruzamento_ecf",
+                "@change": "aoAlterarCruzamento",
+            }
         ),
     )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        self._validar_consolidado(cleaned_data)
+        return cleaned_data
+
+    def _validar_consolidado(self, data: dict) -> None:
+        """
+        Valida se a pessoa pediu para consolidar e mandou só 1 empresa
+        """
+
+        consolidado = data.get("consolidado", False)
+        varias_empresas = True if len(self.get_empresas_dataframe()) > 1 else False
+
+        if consolidado and not varias_empresas:
+            self.add_error(
+                "codigo_empresa",
+                "Para gerar relatório consolidado, é necessário informar pelo menos duas empresas distintas.",
+            )

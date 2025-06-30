@@ -1,6 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
-from typing import List, Literal, Union
+from typing import List, Literal, Optional, Union
 
 import pandas as pd
 from django.http import HttpRequest
@@ -25,29 +25,63 @@ class BalanceteContext:
     tipo_balancete: Literal["ECF", "DOMINIO"]
     data_inicial: date
     data_final: date
-    mostrar_conferencia: bool
-    mostrar_resumo: bool
     df_empresas: pd.DataFrame
     empresas: Union[str, List[str]]
     conexao: Engine
-    transferencia: bool = False
-    zeramento: bool = False
-    cruzamento_ecf: bool = False
-    consolidado: bool = False
+    mostrar_conferencia: bool
+    mostrar_resumo: bool
+    transferencia: bool
+    zeramento: bool
+    cruzamento_ecf: bool
+    consolidado: bool
+
+    balancete: pd.DataFrame = field(default_factory=pd.DataFrame, repr=False)
+    resumo_balancete: pd.DataFrame = field(default_factory=pd.DataFrame, repr=False)
+
+    nome_empresa: Optional[str] = None
+    cnpj: Optional[str] = None
+    codigo_empresa: Optional[int] = None
 
     def __post_init__(self):
-        if isinstance(self.data_inicial, date):
-            self.data_inicial = self.data_inicial.strftime("%Y-%m-%d")
+        """Inicializa campos derivados após a criação do objeto."""
+        if len(self.df_empresas) == 1:
+            self._inicializar_dados_empresa()
 
-        if isinstance(self.data_final, date):
-            self.data_final = self.data_final.strftime("%Y-%m-%d")
+    @property
+    def balancete_dict(self) -> Optional[list[dict]]:
+        """
+        Converte o DataFrame do balancete em lista de dicionários
+        (orient='records'), pronta para exibir no template.
+        """
+        if not self.balancete.empty and isinstance(self.balancete, pd.DataFrame):
+            return self.balancete.to_dict(orient="records")
+        return None
+
+    @property
+    def resumo_balancete_dict(self) -> Optional[list[dict]]:
+        """
+        Converte o DataFrame de resumo em lista de dicionários
+        (orient='records'), pronta para exibir no template.
+        """
+        if not self.resumo_balancete.empty and isinstance(
+            self.resumo_balancete, pd.DataFrame
+        ):
+            return self.resumo_balancete.to_dict(orient="records")
+        return None
+
+    def _inicializar_dados_empresa(self) -> None:
+        empresa_data = self.df_empresas.loc[0]
+        self.nome_empresa = empresa_data.get("nome_emp")
+        self.cnpj = empresa_data.get("CNPJ")
+        self.codigo_empresa = empresa_data.get("codi_emp")
 
 
 # Classe de erro
 class BalanceteEmptyError(Exception):
     """Exceção lançada quando nenhum balancete é gerado."""
 
-    pass
+    def __init__(self, message: str = "Sem dados para emitir !"):
+        super().__init__(message)
 
 
 class Balancete:
@@ -70,9 +104,9 @@ class Balancete:
             Tipo de balancete a ser gerado ('ECF' ou 'DOMINIO')
         empresas : str ou List[str]
             Código(s) da(s) empresa(s). Pode ser uma string única ou lista de strings.
-        data_inicial : str
+        data_inicial : date
             Data inicial no formato 'YYYY-MM-DD'
-        data_final : str
+        data_final : date
             Data final no formato 'YYYY-MM-DD'
         conexao : Engine
             Conexão com o banco de dados SQLAlchemy
@@ -128,13 +162,16 @@ class Balancete:
                     f"Tipo de balancete inválido: {params.tipo_balancete}. Use 'ECF' ou 'DOMINIO'"
                 )
 
+            if df_balancete.empty:
+                continue
+
             if not params.consolidado:
                 df_balancete.insert(0, "Cód. Empresa", codigo_empresa)
 
             lista_balancetes.append(df_balancete)
 
         if not lista_balancetes:
-            raise BalanceteEmptyError("Sem dados para emitir !")
+            raise BalanceteEmptyError()
 
         df_resultado = pd.concat(lista_balancetes, ignore_index=True)
 
@@ -146,8 +183,8 @@ class Balancete:
     @staticmethod
     def _gerar_ecf(
         empresa: str,
-        data_inicial: str,
-        data_final: str,
+        data_inicial: date,
+        data_final: date,
         zeramento: bool,
         transferencia: bool,
         conexao: Engine,
@@ -155,11 +192,13 @@ class Balancete:
         """Gera balancete no formato ECF"""
         zeramento_param = "S" if zeramento else "N"
         transferencia_param = "S" if transferencia else "N"
+        data_inicial_params = data_inicial.strftime("%Y-%m-%d")
+        data_final_params = data_final.strftime("%Y-%m-%d")
 
         params = {
             "codi_emp": empresa,
-            "data_inicial": data_inicial,
-            "data_final": data_final,
+            "data_inicial": data_inicial_params,
+            "data_final": data_final_params,
             "zeramento": zeramento_param,
             "transferencia": transferencia_param,
         }
@@ -199,8 +238,8 @@ class Balancete:
     @staticmethod
     def _gerar_dominio(
         empresa: str,
-        data_inicial: str,
-        data_final: str,
+        data_inicial: date,
+        data_final: date,
         zeramento: bool,
         transferencia: bool,
         conexao: Engine,
@@ -209,11 +248,13 @@ class Balancete:
         """Gera balancete no formato Domínio"""
         zeramento_param = "S" if zeramento else "N"
         transferencia_param = "S" if transferencia else "N"
+        data_inicial_params = data_inicial.strftime("%Y-%m-%d")
+        data_final_params = data_final.strftime("%Y-%m-%d")
 
         params = {
             "codi_emp": empresa,
-            "data_inicial": data_inicial,
-            "data_final": data_final,
+            "data_inicial": data_inicial_params,
+            "data_final": data_final_params,
             "zeramento": zeramento_param,
             "transferencia": transferencia_param,
         }

@@ -2,11 +2,14 @@
 {% extends "relatorios/reports_form.html" %} 
 {% load static %}
 <!-- Aqui estou passando meu formulario HTML, dessa maneira nao fico tendo que criar o restante do site -->
-{% block form %}
+{{ request.session.balancete_form_inputs|json_script:"form-inicial" }}
 
-<form action="" method="POST" enctype="multipart/form-data" id="reportForm" 
-x-data="reportForm(JSON.parse(document.getElementById('form-inicial').textContent))" 
-x-init="init()"
+{% block form_content %}
+<form action="{% url 'relatorios:balancete_relatorio_view' %}"
+  method="POST" 
+  enctype="multipart/form-data" 
+  id="reportForm" 
+  x-data="reportForm(JSON.parse(document.getElementById('form-inicial').textContent || '{}'))"
 >
 
   {% csrf_token %}
@@ -77,29 +80,25 @@ x-init="init()"
     </div>
 
     <!-- Cruzamento ECF -->
-    <template x-if="balancete_normal">
-      <div class="col-md-4 mb-3">
-        <div class="form-check">
-          {{form.cruzamento_ecf}}
-          <label class="form-check-label" for="{{ form.cruzamento_ecf.id_for_label }}">
-            {{ form.cruzamento_ecf.label }}
-          </label>
-        </div>
+    <div class="col-md-4 mb-3" x-show="exibirCruzamentoECF" x-transition>
+      <div class="form-check">
+        {{form.cruzamento_ecf}}
+        <label class="form-check-label" for="{{ form.cruzamento_ecf.id_for_label }}">
+          {{ form.cruzamento_ecf.label }}
+        </label>
       </div>
-    </template>
-
+    </div>
 
     <!-- Consolidado -->
-    <template x-if="balancete_referencial">
-      <div class="col-md-4 mb-3">
-        <div class="form-check">
-          {{form.consolidado}}
-          <label class="form-check-label" for="{{ form.consolidado.id_for_label }}">
-            {{ form.consolidado.label }}
-          </label>
-        </div>
+    <div class="col-md-4 mb-3" x-show="!exibirCruzamentoECF" x-transition>
+      <div class="form-check">
+        {{form.consolidado}}
+        <label class="form-check-label" for="{{ form.consolidado.id_for_label }}">
+          {{ form.consolidado.label }}
+        </label>
       </div>
-    </template>
+    </div>
+
 
     </div>
   </div>
@@ -113,10 +112,11 @@ x-init="init()"
 
 </form>
 
-{% endblock form %}
+{% endblock %}
 
 
-{% block script_extra %}
-  <script src="{% static 'js/report_form.js' %}"></script>
-{% endblock script_extra %}
-
+{% block scripts_extra %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script src="{% static 'js/balanceteFormController.js' %}"></script>
+{% endblock %}

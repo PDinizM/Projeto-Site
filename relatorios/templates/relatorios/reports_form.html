@@ -1,49 +1,96 @@
 {% extends "relatorios/base.html" %}
 {% load static %}
 
-{% block title %}Gerar Relatório - {{ form_title}} {% endblock title %}
+{% block title %}Gerar Relatório - {{ form_title }}{% endblock %}
 
 {% block head_extra %}
-<link rel="stylesheet" href="{% static 'style.css' %}" />
-{% endblock head_extra %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/reports.css' %}">
+{% endblock %}
 
 {% block content %}
 <main class="container my-4 my-md-5">
   <div class="card shadow-sm p-4 p-md-5">
-    <h1 class="form-title text-center">
-      {{ form_title }}
-    </h1>
-    <p class="form-description text-center text-muted mb-4">
-      Selecione as opções abaixo para gerar o relatório.
-    </p>
+    
+    <!-- Bloco de instruções -->
+    {% block form_instructions %}
+    <div class="instructions-container">
+      <i class="bi bi-info-circle-fill instructions-icon"
+         tabindex="0"
+         data-bs-toggle="popover"
+         data-bs-trigger="hover focus"
+         data-bs-placement="bottom"
+         data-bs-custom-class="instructions-popover"
+         data-bs-title="Instruções"
+         data-bs-content="Como utilizar o formulário: &#10;&#10;Opção: Cruzamento com ECF&#10; - Você pode enviar: uma empresa OU uma lista de empresas.&#10; - Resultado: Relatório em formato Excel (.xlsx).&#10;&#10;Opção: Balancete Normal&#10;- Uma empresa: Resultado em HTML.&#10;- Lista de empresas: Resultado em Excel.&#10;&#10;Opção: Balancete Consolidado&#10;- Você deve enviar: uma lista de empresas.&#10;- Resultado: Resultado em HTML.">
+      </i>
+    </div>
+    {% endblock %}
 
+    <!-- Cabeçalho do formulário -->
+    <div class="text-center mb-5">
+      <h1 class="display-5 mb-2">{{ form_title }}</h1>
+      <p class="lead text-muted">Selecione as opções abaixo para gerar o relatório</p>
+    </div>
+
+    <!-- Tratamento de erros -->
     {% if form.errors %}
-    <div class="alert alert-danger" role="alert">
-      <h4 class="alert-heading">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        Erros encontrados:
-      </h4>
-      <hr />
-      {% if form.non_field_errors %}
-      <ul class="mb-0">
-        {% for error in form.non_field_errors %}
-        <li>{{ error }}</li>
+    <div id="form-container">
+      <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          Erros encontrados:
+        </h4>
+        <hr />
+        {# Erros não vinculados a campos específicos #}
+        {% if form.non_field_errors %}
+        <ul class="mb-0">
+          {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        {# Erros específicos de campos #}
+        {% for field in form %}
+          {% if field.errors %}
+          <ul class="mb-0">
+            {% for error in field.errors %}
+            <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
         {% endfor %}
-      </ul>
-      {% endif %}
-      {% for field in form %}
-      {% if field.errors %}
-      <ul class="mb-0">
-        {% for error in field.errors %}
-        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-      {% endfor %}
+		      </div>
     </div>
     {% endif %}
-    
-    {% block form %}{% endblock form %}
+
+    <!-- Formulário principal -->
+    {% block form_content %}{% endblock %}
+
   </div>
 </main>
-{% endblock content %}
+{% endblock %}
+    
+{% block scripts_extra %}
+{{ block.super }}
+<script>
+// Inicialização de popovers com Bootstrap
+document.addEventListener('DOMContentLoaded', () => {
+  // Configuração global de popovers
+  const popovers = [...document.querySelectorAll('[data-bs-toggle="popover"]')]
+    .map(el => new bootstrap.Popover(el, {
+      trigger: 'focus hover',
+      container: 'body',
+      sanitize: false
+    }));
+
+  // Fecha popovers ao clicar fora
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('[data-bs-toggle="popover"]')) {
+      popovers.forEach(p => p.hide());
+    }
+  });
+});
+</script>
+{% endblock %}

@@ -1,10 +1,12 @@
 from django.urls import path
 
 from relatorios.views.views_balancete_cbv import BalanceteRelatorioView
+from relatorios.views.views_index import IndexView
 
 app_name = "relatorios"
 
 urlpatterns = [
+    path("", IndexView.as_view(), name="index"),
     path(
         "balancete/", BalanceteRelatorioView.as_view(), name="balancete_relatorio_view"
     ),

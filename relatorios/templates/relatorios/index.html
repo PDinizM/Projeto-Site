@@ -1,0 +1,139 @@
+{% extends "relatorios/base.html" %}
+{% load static %}
+
+{% block title %} Página Inicial - Relatórios Contábeis {% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+
+    <div class="row align-items-center hero-section-new py-5">
+        <div class="col-lg-6 text-center text-lg-start">
+            <h1 class="display-4 fw-bold lh-1 mb-4 index-title">Relatórios Financeiros<br>precisos e profissionais</h1>
+            <p class="lead mb-4 text-light">
+                Gere relatórios detalhados e personalizados, com apenas alguns cliques.
+            </p>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <a href="#report-cards-section" class="btn btn-primary btn-lg px-4 me-md-2">Começar agora</a>
+                <button type="button" class="btn btn-outline-secondary btn-lg px-4" data-bs-toggle="modal" data-bs-target="#videoModal">
+                    <i class="bi bi-play-circle me-2"></i> Ver demonstração
+                </button>
+            </div>
+        </div>
+        <div class="col-lg-6 mt-5 mt-lg-0">
+            <img src="{% static 'global/img/hero-ilustracao.png' %}" class="d-block mx-lg-auto img-fluid" alt="Ilustração de relatórios" loading="lazy">
+        </div>
+    </div>
+
+    <div class="text-center my-5 hero-section" id="report-cards-section">
+        <h2 class="display-5 fw-bold text-white">Nossas Ferramentas</h2>
+        <p class="lead text-light">
+            Comece selecionando um dos relatórios abaixo :
+        </p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        <div class="col-lg-4 col-md-6 d-flex">
+            <div class="card w-100 report-card shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="icon-container icon-balancete me-3">
+                            <i class="bi bi-wallet2"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold">Balancete</h5>
+                            <p class="card-text text-muted mb-2">Visualize o resumo das contas contábeis com saldos devedores e credores para um período específico.</p>
+                        </div>
+                    </div>
+                    <ul class="list-unstyled text-start feature-list mt-2 mb-4 flex-grow-1">
+                        <li><i class="bi bi-check-circle-fill"></i> Saldos iniciais e finais</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Movimentação do período</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Filtros personalizáveis</li>
+                    </ul>
+                    <a href="{% url 'relatorios:balancete_relatorio_view' %}" class="btn btn-balancete mt-auto">Ir para Balancete</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 d-flex">
+            <div class="card w-100 report-card shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="icon-container icon-razao me-3">
+                            <i class="bi bi-journal-text"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold">Razão</h5>
+                            <p class="card-text text-muted mb-2">Acompanhe detalhadamente todas as movimentações de cada conta contábil em ordem cronológica.</p>
+                        </div>
+                    </div>
+                    <ul class="list-unstyled text-start feature-list mt-2 mb-4 flex-grow-1">
+                        <li><i class="bi bi-check-circle-fill"></i> Histórico completo de lançamentos</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Rastreabilidade de transações</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Exportação em múltiplos formatos</li>
+                    </ul>
+                    <a href="#" class="btn btn-razao mt-auto">Ir para Razão</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6 d-flex">
+            <div class="card w-100 report-card shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="icon-container icon-comparativo me-3">
+                            <i class="bi bi-bar-chart-line-fill"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title fw-bold">Comparativo</h5>
+                            <p class="card-text text-muted mb-2">Compare resultados entre diferentes períodos para análise de tendências e tomada de decisões.</p>
+                        </div>
+                    </div>
+                    <ul class="list-unstyled text-start feature-list mt-2 mb-4 flex-grow-1">
+                        <li><i class="bi bi-check-circle-fill"></i> Análise de variação percentual</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Gráficos interativos</li>
+                        <li><i class="bi bi-check-circle-fill"></i> Comparação de múltiplos períodos</li>
+                    </ul>
+                    <a href="#" class="btn btn-comparativo mt-auto">Ir para Comparativo</a>
+                </div>
+            </div>
+        </div>
+    </div></div><div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videoModalLabel">Demonstração da Plataforma</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="ratio ratio-16x9">
+                    <iframe src="https://www.youtube.com/embed/jrXkQuJcPUg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+
+{% block scripts_extra %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Para o Popover de instruções
+        const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+        const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl));
+
+        // Script para parar o vídeo quando o modal fecha
+        const videoModal = document.getElementById('videoModal');
+        if (videoModal) {
+            const videoIframe = videoModal.querySelector('iframe');
+            const originalSrc = videoIframe.src;
+
+            videoModal.addEventListener('hidden.bs.modal', function () {
+                // Para o vídeo, redefinindo o 'src' para o original
+                videoIframe.src = originalSrc;
+            });
+        }
+    });
+</script>
+{% endblock scripts_extra %}

@@ -1,7 +1,7 @@
 from io import BytesIO
 
 import pandas as pd
-from django.http import HttpResponse, StreamingHttpResponse
+from django.http import HttpResponse
 
 
 def dataframe_para_excel_response(
@@ -11,10 +11,11 @@ def dataframe_para_excel_response(
     with pd.ExcelWriter(buffer, engine="xlsxwriter") as writer:
         df.to_excel(writer, index=False, sheet_name=nome_aba)
     buffer.seek(0)
-    response = StreamingHttpResponse(
-        buffer,
+
+    response = HttpResponse(
+        buffer.read(),
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
-    response["Content-Disposition"] = f"attachment; filename={nome_arquivo}"
+    response["Content-Disposition"] = f'attachment; filename="{nome_arquivo}"'
     response.set_cookie("download_complete", "true", max_age=60)
     return response

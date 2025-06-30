@@ -46,6 +46,7 @@
 </main>
 {% endblock content %}
 
-{% block script_extra %}
+{% block scripts_extra %}
+  {{ block.super }}
   {% include "relatorios/partials/datatables_scripts.html" %}
-{% endblock script_extra %}
+{% endblock %}

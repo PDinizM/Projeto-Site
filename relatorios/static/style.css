@@ -1,4 +1,4 @@
-/*Estilos que o bootstrap não oferece*/
+/*Estilos Gerais e Globais*/
 html {
   height: 100%;
   background: linear-gradient(135deg, #a7a8b6 0%, #2b2e2b 100%);
@@ -17,13 +17,6 @@ main {
   background: transparent;
 }
 
-/* Classe personalizada para o container para adicionar o efeito de vidro */
-.custom-container {
-  background: rgba(194, 151, 151, 0.95);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
 .form-title {
   color: #131212;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -40,214 +33,171 @@ input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
-/* Impressão*/
-@media print {
-  @page {
-    size: A4 portrait;
-    margin: 1.5cm;
-  }
 
-  /* Remove elementos que não devem aparecer */
-  header,
-  footer,
-  nav,
-  .btn,
-  .report-controls,
-  .input-group,
-  .dataTables_filter,
-  .dataTables_paginate,
-  .dataTables_length,
-  .dataTables_info,
-  .d-print-none {
-    display: none !important;
-  }
-
-  /* Remove qualquer fundo de tela */
-  html,
-  body {
-    background: white !important;
-  }
-
-  /* Garante que o container principal se expanda corretamente */
-  #conteudo-para-exportar {
-    width: 100% !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-    background: white !important;
-    overflow: visible !important;
-  }
-
-  /* Estilização das informações do cabeçalho (Empresa, CNPJ etc.) */
-  #conteudo-para-exportar > *:first-child {
-    width: 100% !important;
-    display: block;
-    text-align: left;
-    margin-bottom: 1rem;
-  }
-
-  /* Tabelas */
-  table {
-    width: 100% !important;
-    table-layout: auto !important;
-    border-collapse: collapse !important;
-    font-size: 10px !important;
-  }
-
-  thead {
-    display: table-header-group !important;
-  }
-
-  tfoot {
-    display: table-footer-group !important;
-  }
-
-  th,
-  td {
-    padding: 2px 5px !important;
-    white-space: nowrap !important;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    border: none !important;
-    vertical-align: middle !important;
-  }
-
-  /* Estilização das colunas principais (ajuste as larguras conforme necessário) */
-  th:nth-child(1),
-  td:nth-child(1) {
-    width: 6%;
-  }
-  th:nth-child(2),
-  td:nth-child(2) {
-    width: 10%;
-  }
-  th:nth-child(3),
-  td:nth-child(3) {
-    width: 18%;
-  }
-  th:nth-child(4),
-  td:nth-child(4) {
-    width: 6%;
-    text-align: center;
-  }
-  th:nth-child(5),
-  td:nth-child(5),
-  th:nth-child(7),
-  td:nth-child(7),
-  th:nth-child(8),
-  td:nth-child(8),
-  th:nth-child(9),
-  td:nth-child(9) {
-    width: 10%;
-    text-align: right;
-  }
-  th:nth-child(6),
-  td:nth-child(6),
-  th:nth-child(10),
-  td:nth-child(10) {
-    width: 4%;
-    text-align: center;
-  }
-
-  /* Zebra stripes */
-  .table-striped > tbody > tr:nth-of-type(odd) > td {
-    background-color: #f8f9fa !important;
-  }
-
-  /* Mantém as cores (ex: header escuro) */
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-}
-@media print {
-  @page {
-    size: A4 portrait;
-    margin: 1.2cm;
-  }
-
-  /* Oculta elementos que não devem aparecer na impressão */
-  header,
-  footer,
-  nav,
-  .btn,
-  .input-group,
-  .report-controls,
-  .dataTables_filter,
-  .dataTables_paginate,
-  .dataTables_length,
-  .dataTables_info,
-  .d-print-none {
-    display: none !important;
-  }
-
-  html,
-  body {
-    background: white !important;
-    color: black !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    font-size: 10px !important;
-  }
-
-  /* Container principal do conteúdo */
-  #conteudo-para-exportar {
-    width: 100% !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-    overflow: visible !important;
-  }
-
-  /* Cabeçalho dinâmico (empresa, CNPJ etc.) */
-  .info-relatorio {
-    width: 100%;
-    margin-bottom: 12px;
-    font-size: 12px;
-    line-height: 1.5;
-  }
-
-  /* Remove restrição de rolagem e colapso */
-  .table-responsive {
-    overflow: visible !important;
-  }
-
-  table {
-    width: 100% !important;
-    table-layout: auto !important;
-    border-collapse: collapse !important;
-    word-break: break-word;
-  }
-
-  th,
-  td {
-    border: none !important;
-    padding: 4px 6px !important;
-    vertical-align: middle !important;
-    white-space: nowrap !important;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  thead {
-    display: table-header-group !important;
-    background-color: #343a40 !important;
-    color: white !important;
-  }
-
-  tfoot {
-    display: table-footer-group !important;
-  }
-
-  .table-striped > tbody > tr:nth-of-type(odd) > td {
-    background-color: #f8f9fa !important;
-  }
-
-  /* Evita quebra no meio de linhas longas */
-  tr {
-    page-break-inside: avoid !important;
-  }
+/*Estilos da Página Inicial*/
+.report-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
 }
 
-/*Estilos para o Overlay de Carregamento */
+.report-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+}
+
+.report-card .card-body {
+  padding: 1.5rem;
+}
+
+.report-card .icon-container {
+  font-size: 2rem;
+  min-width: 60px; /* Aumenta o espaço */
+  height: 60px; /* Define altura */
+  margin: 0 auto 1rem auto; /* Centraliza e adiciona margem inferior */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%; /* Transforma num círculo */
+  background-color: rgba(25, 24, 24, 0.1); /* Fundo branco subtil */
+}
+
+.report-card .card-title {
+  margin-bottom: 0.25rem;
+}
+
+.feature-list li {
+  margin-bottom: 0.5rem;
+  color: #495057;
+  font-size: 0.95rem;
+}
+
+.feature-list li i {
+  margin-right: 0.5rem;
+  font-size: 1.1rem;
+  color: #35c84e;
+}
+
+.hero-section {
+  padding: 3rem 1rem; /* Mais espaçamento vertical */
+  background-color: rgba(0, 0, 0, 0.1); /* Um fundo subtil para destacar */
+  border-radius: 15px;
+  backdrop-filter: blur(5px); /* Efeito de vidro subtil */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Cores dos Ícones e Botões dos Cards */
+.icon-balancete {
+  color: #0d6efd;
+}
+.btn-balancete {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: #fff;
+  font-weight: 500;
+}
+.btn-balancete:hover {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+}
+
+.icon-razao {
+  color: #6f42c1;
+}
+.btn-razao {
+  background-color: #6f42c1;
+  border-color: #6f42c1;
+  color: #fff;
+  font-weight: 500;
+}
+.btn-razao:hover {
+  background-color: #653bac;
+  border-color: #5f38a1;
+}
+
+.icon-comparativo {
+  color: #eb8d20;
+}
+.btn-comparativo {
+  background-color: #eb8d20;
+  border-color: #eb8d20;
+  color: #fff;
+  font-weight: 500;
+}
+.btn-comparativo:hover {
+  background-color: #d37c1c;
+  border-color: #c0711a;
+}
+
+/* Fonte customizada para o Título da Página Inicial */
+.index-title {
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+}
+
+/*Estilos para o hero inicial*/
+
+.hero-section-new .btn-primary {
+  background-color: #4263eb;
+  border-color: #4263eb;
+}
+
+.hero-section-new .btn-primary:hover {
+  background-color: #3b5bdb;
+  border-color: #3b5bdb;
+}
+
+.hero-section-new .btn-outline-secondary {
+  color: #fff;
+  border-color: #fff;
+}
+
+.hero-section-new .btn-outline-secondary:hover {
+  color: #4263eb;
+  background-color: #fff;
+  border-color: #fff;
+}
+/*Estilos para o Popover de Instruções */
+.card {
+  position: relative;
+}
+
+.instructions-container {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+  z-index: 10;
+}
+
+.instructions-icon {
+  font-size: 1.5rem;
+  color: #0d6efd;
+  cursor: pointer;
+}
+
+.instructions-popover {
+  background-color: #343a40;
+  border: 1px solid #495057;
+}
+
+.instructions-popover .popover-header {
+  background-color: #343a40;
+  color: #fff;
+  border-bottom: 1px solid #495057;
+}
+
+.instructions-popover .popover-body {
+  color: #f8f9fa;
+  white-space: pre-wrap;
+}
+
+.instructions-popover.bs-popover-auto[data-popper-placement^="bottom"]
+  > .popover-arrow::after,
+.instructions-popover.bs-popover-bottom > .popover-arrow::after {
+  border-bottom-color: #343a40;
+}
+
+/*Estilos para o Overlay de Carregamento*/
 #loading-overlay {
   background: linear-gradient(
     135deg,
@@ -255,13 +205,10 @@ input[type="number"] {
     rgba(129, 133, 129, 0.95) 100%
   );
   backdrop-filter: blur(10px);
-  z-index: 9999; /* z-index do Bootstrap pode não ser alto o suficiente, então mantemos aqui */
+  z-index: 9999;
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Padding, alinhamento de texto, borda e sombra foram movidos para as classes do Bootstrap.
-  Apenas o fundo customizado, a animação e o posicionamento relativo permanecem.
-*/
 .loading-content {
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -273,12 +220,6 @@ input[type="number"] {
   width: 90%;
 }
 
-/* A animação 'pulse' foi removida. Use-a apenas se o seu ícone não for animado. */
-/* .loading-logo {
-  animation: pulse 2s infinite;
-} 
-*/
-
 .loading-progress {
   border-radius: 10px;
   overflow: hidden;
@@ -289,7 +230,7 @@ input[type="number"] {
   border-radius: 10px;
 }
 
-/* Animações (Inalteradas) */
+/* Animações */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -322,7 +263,7 @@ input[type="number"] {
   }
 }
 
-/* Ondas decorativas (Inalteradas) */
+/* Ondas Decorativas */
 .loading-waves {
   position: absolute;
   top: 0;
@@ -378,21 +319,7 @@ input[type="number"] {
   }
 }
 
-/* Responsividade e Classes de Estado (Inalteradas) */
-@media (max-width: 576px) {
-  .loading-content {
-    /* O padding já é responsivo com as classes do Bootstrap, mas podemos ajustar se necessário */
-    margin: 1rem;
-  }
-  h4 {
-    /* Ajustando o tamanho da fonte para telas menores */
-    font-size: 1.3rem;
-  }
-  .loading-progress {
-    width: 250px;
-  }
-}
-
+/* Estado de Carregamento Ativo */
 body.loading-active {
   overflow: hidden;
 }
@@ -401,4 +328,102 @@ body.loading-active * {
 }
 body.loading-active #loading-overlay {
   pointer-events: all;
+}
+
+/* Estilos de Impressão */
+@media print {
+  /* Configuração da Página */
+  @page {
+    size: A4 portrait;
+    margin: 1cm;
+  }
+
+  /* Ocultar Elementos Desnecessários */
+  nav,
+  footer,
+  .action-buttons,
+  #customSearchInput,
+  .d-print-none {
+    display: none !important;
+  }
+
+  /* Reset do Layout Principal */
+  body,
+  html,
+  main,
+  .container,
+  .card,
+  .card-body,
+  #conteudo-para-exportar,
+  .table-responsive {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  /* Estilos Gerais do Conteúdo Impresso */
+  body {
+    color: #000 !important;
+    font-size: 9pt !important;
+  }
+
+  .report-header {
+    margin-bottom: 20px !important;
+    padding-bottom: 10px !important;
+    border-bottom: 1px solid #ccc !important;
+  }
+
+  h1 {
+    font-size: 16pt !important;
+  }
+
+  /* Estilização da Tabela */
+  table#balancete {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 7.5pt !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+  }
+
+  th,
+  td {
+    padding: 3px 5px !important;
+    white-space: normal !important;
+    word-wrap: break-word;
+    text-align: left;
+  }
+
+  /* Manter Cores de Fundo */
+  .table-dark {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background-color: #343a40 !important;
+    color: #fff !important;
+  }
+
+  .table-striped > tbody > tr:nth-of-type(odd) > td {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background-color: #f8f9fa !important;
+  }
+
+  /* Alinhamentos Específicos */
+  #balancete .text-center {
+    text-align: center !important;
+  }
+  #balancete .text-end {
+    text-align: right !important;
+  }
 }

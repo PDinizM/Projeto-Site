@@ -11,6 +11,7 @@ INNER JOIN bethadba.ctlancto ON
 WHERE
     CTLANCTO_SPED_ECF_GERAL.CODI_EMP = :codi_emp AND
     CTLANCTO_SPED_ECF_GERAL.CONTA_CREDITO <> 0 AND
+    CTLANCTO.CCRE_LAN <> 0 AND
     ctlancto.data_lan BETWEEN :data_inicial AND :data_final AND
     ( :zeramento = 'N' OR ( :zeramento = 'S' AND ctlancto.orig_lan <> 2)) AND
     ( :transferencia = 'N' OR ( :transferencia = 'S' AND ctlancto.orig_lan <> 34))
