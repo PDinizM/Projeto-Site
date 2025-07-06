@@ -6,7 +6,7 @@ import pandas as pd
 from django.http import HttpRequest
 from sqlalchemy.engine import Engine
 
-from relatorios.forms.formularios import BalanceteForm
+from relatorios.forms.base import BalanceteForm
 from relatorios.utils.classificacoes import (
     regraClassificacaoDominio,
     regraClassificacaoECF,

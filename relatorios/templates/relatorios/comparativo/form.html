@@ -1,0 +1,188 @@
+<!-- Aqui estou pegando um template html que possui variaveis e preenchendo essas variveis, dessa forma eu evito HTML repetitivo -->
+{% extends "relatorios/reports_form.html" %} 
+{% load static %}
+<!-- Aqui estou passando meu formulario HTML, dessa maneira nao fico tendo que criar o restante do site -->
+{% block card_color_class %}bg-comparativo-light bg-gradient{% endblock %}
+
+{% block head_extra %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/inputmask@5.0.8/dist/inputmask.min.js"></script>
+{% endblock %}
+
+{% block report_icon %}
+  <div class="icon-container icon-comparativo">
+    <i class="bi bi-bar-chart-line-fill"></i>
+  </div>
+{% endblock%}
+
+{% block report_color_class %}icon-comparativo{% endblock %}
+{% block form_instructions_content %}O Relatório Comparativo analisa os saldos das contas ao longo dos meses selecionados.&#10;
+- Empresa: Você pode informar uma ou mais empresas.&#10;
+- Classificações: Use o botão de filtro para selecionar apenas as contas que deseja analisar.&#10;
+- Opções: Configure se deseja desconsiderar zeramentos ou saldos para refinar a sua análise.
+{% endblock form_instructions_content %}
+
+{% block form_content %}
+
+<form action="{% url 'relatorios:comparativo' %}"
+  method="POST" 
+  enctype="multipart/form-data" 
+  id="reportForm">
+
+  {% csrf_token %}
+  
+  {% include "relatorios/partials/comuns_inputs.html" %}
+
+  <hr class="my-4">
+
+  <div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+    <label class="form-label fw-bold mb-0">Opções</label>
+    
+    <button type="button" class="btn btn-primary btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#modalClassificacoes" title="Filtrar Classificações">
+      <i class="bi bi-sliders"></i>
+    </button>
+  </div>
+
+      <!-- Zeramento -->
+      <div class="row g-3"> 
+      <div class="col-md-4 mb-3">
+        <div class="form-check">
+          {{ form.zeramento }}
+          <label class="form-check-label" for="{{ form.zeramento.id_for_label }}">
+            {{ form.zeramento.label }}
+          </label>
+        </div>
+      </div>
+
+      <!-- Transferência -->
+      <div class="col-md-4 mb-3">
+        <div class="form-check">
+          {{ form.transferencia }}
+          <label class="form-check-label" for="{{ form.transferencia.id_for_label }}">
+            {{ form.transferencia.label }}
+          </label>
+        </div>
+      </div>
+
+      <!-- Resumo -->
+      <div class="col-md-4 mb-3">
+        <div class="form-check">
+          {{ form.resumo }}
+          <label class="form-check-label" for="{{ form.resumo.id_for_label }}">
+            {{ form.resumo.label }}
+          </label>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <div class="form-check">
+          {{ form.saldo_anterior }}
+          <label class="form-check-label" for="{{ form.saldo_anterior.id_for_label }}">
+            {{ form.saldo_anterior.label }}
+          </label>
+        </div>
+      </div>
+      
+      <div class="col-md-4 mb-3">
+        <div class="form-check">
+          {{ form.saldo_acumulado }}
+          <label class="form-check-label" for="{{ form.saldo_acumulado.id_for_label }}">
+            {{ form.saldo_acumulado.label }}
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <div class="modal fade" id="modalClassificacoes" tabindex="-1" aria-labelledby="modalClassificacoesLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalClassificacoesLabel">Adicionar Classificações</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="input-group mb-3">
+            <input type="text" id="classificacao-input" class="form-control" placeholder="Ex: 1.1.1.01.00001" maxlength="16">
+            <button type="button" class="btn btn-primary" onclick="adicionarClassificacao()">+</button>
+          </div>
+          <ul id="lista-classificacoes" class="list-group"></ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+  <div class="mb-4"></div>
+  <div class="d-flex justify-content-end gap-2 mt-4">
+    <button type="reset" class="btn btn-outline-secondary"><i class="bi bi-arrow-clockwise"></i> Limpar</button>
+    <button type="submit" class="btn btn-primary"><i class="bi bi-file-earmark-text"></i> Gerar</button>
+  </div>
+</div> </form>
+
+{% endblock %}
+
+
+{% block scripts_extra %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script>
+  const input = document.getElementById('classificacao-input');
+  const lista = document.getElementById('lista-classificacoes');
+  const hiddenInput = document.getElementById('id_classificacoes');
+  const classificacoes = [];
+
+  function adicionarClassificacao() {
+    const valor = input.value.trim();
+    if (valor && !classificacoes.includes(valor)) {
+      classificacoes.push(valor);
+      atualizarLista();
+    }
+    input.value = '';
+    input.focus();
+  }
+
+  function removerClassificacao(index) {
+    classificacoes.splice(index, 1);
+    atualizarLista();
+  }
+
+  function atualizarLista() {
+    lista.innerHTML = '';
+    classificacoes.forEach((c, index) => {
+      const item = document.createElement('li');
+      item.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+      item.textContent = c;
+
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-sm btn-danger';
+      btn.textContent = 'Remover';
+      btn.onclick = () => removerClassificacao(index);
+
+      item.appendChild(btn);
+      lista.appendChild(item);
+    });
+
+    // atualiza campo oculto
+    hiddenInput.value = classificacoes.join(',');
+  }
+</script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/5.0.8/inputmask.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/5.0.8/bindings/inputmask.binding.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var im = new Inputmask("9.9.9.99.99999");
+    im.mask(document.getElementById("classificacao-input"));
+  });
+</script>
+
+{% endblock %}

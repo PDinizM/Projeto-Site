@@ -1,7 +1,7 @@
 {% extends "relatorios/base.html" %}
 {% load static %}
 
-{% block title %}Gerar Relatório - {{ form_title }}{% endblock %}
+{% block title %}Gerar Relatório - {{ form.titulo }}{% endblock %}
 
 {% block head_extra %}
 {{ block.super }}
@@ -10,28 +10,31 @@
 
 {% block content %}
 <main class="container my-4 my-md-5">
-  <div class="card shadow-sm p-4 p-md-5">
+  <div class="card shadow-sm p-4 p-md-5 {% block card_color_class %} {% endblock %} ">
     
     <!-- Bloco de instruções -->
-    {% block form_instructions %}
-    <div class="instructions-container">
-      <i class="bi bi-info-circle-fill instructions-icon"
-         tabindex="0"
-         data-bs-toggle="popover"
-         data-bs-trigger="hover focus"
-         data-bs-placement="bottom"
-         data-bs-custom-class="instructions-popover"
-         data-bs-title="Instruções"
-         data-bs-content="Como utilizar o formulário: &#10;&#10;Opção: Cruzamento com ECF&#10; - Você pode enviar: uma empresa OU uma lista de empresas.&#10; - Resultado: Relatório em formato Excel (.xlsx).&#10;&#10;Opção: Balancete Normal&#10;- Uma empresa: Resultado em HTML.&#10;- Lista de empresas: Resultado em Excel.&#10;&#10;Opção: Balancete Consolidado&#10;- Você deve enviar: uma lista de empresas.&#10;- Resultado: Resultado em HTML.">
-      </i>
-    </div>
-    {% endblock %}
+
+  <div class="instructions-container">
+    <i class="bi bi-info-circle-fill instructions-icon"
+        tabindex="0"
+        data-bs-toggle="popover"
+        data-bs-trigger="hover focus"
+        data-bs-placement="bottom"
+        data-bs-custom-class="instructions-popover"
+        data-bs-title="Instruções"
+        data-bs-content="{% block form_instructions_content %}{% endblock form_instructions_content %}">
+    </i>
+  </div>
+
 
     <!-- Cabeçalho do formulário -->
-    <div class="text-center mb-5">
-      <h1 class="display-5 mb-2">{{ form_title }}</h1>
-      <p class="lead text-muted">Selecione as opções abaixo para gerar o relatório</p>
-    </div>
+    <div class="report-title-header mb-5">
+      {% block report_icon %} {% endblock %}
+      <h1 class="display-5 mb-2 main-title text-center {% block report_color_class %} {% endblock %}">
+        {{form.titulo}}
+      </h1>
+      <p class="lead text-muted text-center">Selecione as opções abaixo para gerar o relatório</p>
+    <div>
 
     <!-- Tratamento de erros -->
     {% if form.errors %}

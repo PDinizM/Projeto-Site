@@ -1,0 +1,60 @@
+{% extends "relatorios/base.html " %}
+{% comment %}
+Este é um templete para relatórios largos
+{% endcomment %}
+
+{% load static %}
+
+{% block title %}{% endblock title %}
+
+{% block head_extra %}
+
+{# A biblioteca datatables principal#}
+ <link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" rel="stylesheet" />
+
+{#CSS para a extensão de fixar as colunas #}
+<link href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="{% static 'style.css' %}" />
+{% endblock head_extra %}
+
+{% block content %}
+<main class="container-fluid my-5 px-md-4">
+  <div class="card shadow-sm bg-comparativo-light">
+    <div class="card-body p-4 p-md-5">
+      {% include "relatorios/partials/action-buttons.html" %}
+    
+      <div class="report-header mb-4 border-bottom pb-3">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            {% if varias_empresas %}
+            <p><strong>Lista de Empresas:</strong> {{ lista_empresas }}</p>
+            {% else %}
+            <h4><strong>Empresa:</strong> {{ nome_empresa }}</h4>
+            <p class="mb-0"><strong>C.N.P.J:</strong> {{ cnpj }}</p>
+            {% endif %}
+            <p class="mb-0"><strong>Período:</strong> {{ data_inicial|date:"d/m/Y" }} a {{ data_final|date:"d/m/Y" }}</p>
+          </div>
+          <div class="col-md-4 text-md-end">
+            <small><strong>Emissão:</strong> {% now "d/m/Y" %}</small><br />
+            <small><strong>Hora:</strong> {% now "H:i:s" %}</small>
+          </div>
+        </div>
+        <h1 class="text-center mt-4"> {{form_title}}</h1>
+      </div>
+      {% block conteudo %}
+      {% endblock conteudo %}
+      
+      <div class="sumary mt-5"></div>
+    </div>
+  </div>
+</main>
+{% endblock content %}
+
+{% block scripts_extra %}
+{{block.super}}
+{#Os scripts estao em um lugar centralizado #}
+{% include "relatorios/partials/datatables_scripts_wide.html" %}
+{% endblock scripts_extra %}
+
+
+  

@@ -1,5 +1,6 @@
 <!-- Aqui estou pegando um template html que possui variaveis e preenchendo essas variveis, dessa forma eu evito HTML repetitivo -->
 {% extends "relatorios/reports_result.html" %}
+{% block body_class %}print-portrait{% endblock %}
 <!-- Aqui estou importando uma "biblioteca" que eu fiz manual no intuito de nao ter muita logica no HTML, onde fiz um filtro personlizado para simplificar -->
 {% load filtros %}
 <!-- Aqui estou importando uma "biblioteca" que possui algumas funções matematicas, como abs utilizado para pegar o valor absoluto -->
@@ -36,7 +37,7 @@
         </div>
     </div>
 </div>
- 
+
 <div id="conteudo-para-exportar" class="p-3 border rounded ">
 
 <div class="table-responsive">
@@ -63,7 +64,7 @@
         </thead>
         <tbody>
             <!-- Aqui um for no meu resultado que eu pego da minha view e passo ao meu template, para preencher o table conforme a necessidade -->
-            {% for item in dados_relatorio_balancete %}
+            {% for item in balancete %}
             <!-- Caso seja sintetico ele coloca o style que deixa a linha em negrito. -->
             <tr
                 data-classificacao="{{ item.classificacaoConta }}"
@@ -129,7 +130,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for item in dados_relatorio_resumo %}
+                {% for item in resumo %}
                     {# Separador antes do bloco de contas devedoras/credoras #}
                     {% if item.descricaoConta == "CONTAS DEVEDORAS" %}
                     <td colspan="10"  style="height: 30px;"></td>

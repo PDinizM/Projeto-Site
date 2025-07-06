@@ -1,0 +1,51 @@
+{% extends "relatorios/reports_result_wide.html" %}
+{% block body_class %}print-landscape{% endblock %}
+{% comment %}
+Este resultado esta estendendo o layout wide 
+{% endcomment %}
+
+{% load filtros mathfilters static %}
+{% block title %}{{codigo_empresa}} - {{form_title}}{% endblock title %}
+
+{% block conteudo %} 
+
+
+<div class=" report-controls mb-4 d-print-none">
+    <div class="input-group" style="max-width: 350px;">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input type="text" id="customSearchInput" class="form-control" placeholder="Buscar registros...">
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table id="comparativo" class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th class="col-fixo col-codigo">Código</th>
+            <th class="col-fixo col-classificacao">Classificação</th>
+            <th class="col-fixo col-descricao">Descrição</th>
+            {% for mes in meses_ordenados %}
+            <th class="text-end col-mes">{{mes}}</th>
+            <th class="col-mes-dc"></th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in comparativo %}
+        <tr {% if item.tipo_conta == "S" %}class="linha-sintetica"{% endif %}>
+            <td class="text-center col-fixo">{{ item.conta_lancamento }}</td>
+            <td class="text-start col-fixo"> {{ item.classificacao_conta }}</td>
+            <td class="col-fixo col-descricao" style="padding-left: {{ item.classificacao_conta|length|mul:3 }}px;">
+                {{ item.descricao_conta }}
+            </td>
+            {% for mes in meses_ordenados %}
+            <td class="text-end moeda-pt-br col-mes">
+                {{ item|get_item:mes|abs|floatformat:2 }}
+            </td>
+            <td class="text-center col-mes-dc"> {{ item|get_item:mes|retornar_dc }} </td>
+            {% endfor %}    
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+    </div>
+{% endblock conteudo %}

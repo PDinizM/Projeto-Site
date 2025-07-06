@@ -1,0 +1,114 @@
+<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+<script>
+  $(document).ready(function () {
+    var table = $("#comparativo").DataTable({
+      dom: "Bft",
+      buttons: [],
+      ordering: false,
+      paging: false,
+      scrollX: true,
+      scrollCollapse: true,
+      fixedColumns: {
+        left: 3,
+      },
+      language: {
+        url: "https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json",
+      },
+    });
+
+    $("#btn-copy-text").on("click", function () {
+      table.button().add(0, {
+        extend: "copyHtml5",
+        text: "Copiar",
+        exportOptions: { columns: ":visible" },
+      });
+      table.button(0).trigger();
+      table.buttons().remove();
+    });
+
+    $("#btn-save-xlsx").on("click", function () {
+      table.button().add(0, {
+        extend: "excelHtml5",
+        text: "Excel",
+        title:
+          "Relatorio_Comparativo_" +
+          new Date().toISOString().slice(0, 19).replace(/[-T:]/g, ""),
+        exportOptions: { columns: ":visible" },
+      });
+      table.button(0).trigger();
+      table.buttons().remove();
+    });
+
+    $("#btn-imprimir-principal").on("click", function () {
+      table.button().add(0, {
+        extend: "print",
+        text: "Imprimir",
+        autoPrint: true,
+        title: "",
+        customize: function (win) {
+            //Colocar o cabeçalho do relatório no topo da página impressa
+          var header = $('.report-header').clone();
+            $(win.document.body).prepend(header);
+
+           $(win.document.head).append(
+                "<style>" +
+                    "@page { size: A4 landscape !important; margin: 1.2cm 1cm !important; }" +
+                    "body { font-family: Arial, sans-serif !important; }" +
+                    
+                    /* Estilos para o cabeçalho da empresa */
+                    ".report-header { text-align: left !important; margin-bottom: 20px !important; border-bottom: 2px solid #666; padding-bottom: 10px; }" +
+                    ".report-header .form-title { font-size: 18pt !important; font-weight: bold; margin-bottom: 15px; text-align: center; }" +
+                    ".header-info { display: flex; justify-content: space-between; font-size: 9pt; line-height: 1.5; }" +
+                    ".header-info-left, .header-info-right { display: flex; flex-direction: column; }" +
+
+                    /* Estilos para a tabela */
+                    "table { width: 100% !important; border-collapse: collapse !important; }" +
+                    "thead { display: table-header-group !important; }" +
+                    "table .table-dark { background-color: #e9ecef !important; -webkit-print-color-adjust: exact !important; color: #000 !important; }" +
+                    
+                    /* Estilo geral para borda e alinhamento vertical */
+                    "th, td { border: 1px solid #ccc !important; vertical-align: middle !important; }" +
+
+                    /* Estilo para cabeçalhos: centralizados e em negrito */
+                    "th { padding: 4px 5px !important; font-weight: bold; text-align: center !important; }" +
+                    "th.col-descricao { text-align: left !important; }" + 
+
+                    /* Alinha as colunas de dados numéricos à direita */
+                    "td.col-mes, td.saldo_acumulado { padding: 3px 5px !important; text-align: right !important; white-space: nowrap; }" +
+
+                    /* Preserva o padding-left da descrição vindo do HTML */
+                    "td.col-descricao { padding-top: 3px !important; padding-bottom: 3px !important; padding-right: 5px !important; text-align: left !important; white-space: normal; }" +
+                    "td.col-codigo, td.col-classificacao { padding: 3px 5px !important; text-align: left; }" +
+                "</style>"
+          );
+
+          const mesesCount = $(win.document.body).find(
+            "table thead th.col-mes"
+          ).length;
+          const $table = $(win.document.body).find("table");
+
+          let fontSize = "7pt";
+          if (mesesCount <= 6) fontSize = "8.5pt";
+          else if (mesesCount <= 9) fontSize = "8pt";
+          else if (mesesCount <= 12) fontSize = "7.5pt";
+
+          $table.css("font-size", fontSize);
+          $(win.document.body).css("font-size", "10pt");
+          $(win.document.body).find("h1").css({
+            "font-size": "16pt",
+            "text-align": "center",
+            "margin-bottom": "20px",
+          });
+        },
+      });
+      table.button(0).trigger();
+      table.buttons().remove();
+    });
+  });
+</script>

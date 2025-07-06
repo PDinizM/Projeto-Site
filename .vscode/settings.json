@@ -11,7 +11,7 @@
   "workbench.editor.labelFormat": "short",
   "editor.tabSize": 2,
   "editor.rulers": [79, 120],
-  "workbench.colorTheme": "OM Theme (Default Dracula Italic)",
+  "workbench.colorTheme": "OM Theme (Night Owl Italic)",
   "explorer.compactFolders": false,
   "editor.minimap.enabled": false,
   "workbench.editor.enablePreview": false,

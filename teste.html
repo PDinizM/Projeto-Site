@@ -1,0 +1,57 @@
+<form method="post">
+  <div>
+    <label>Adicionar Classificações:</label>
+    <div style="display: flex; gap: 8px">
+      <input
+        type="text"
+        id="classificacao-input"
+        class="form-control"
+        placeholder="Digite uma classificação"
+      />
+      <button type="button" onclick="adicionarClassificacao()">+</button>
+    </div>
+    <ul id="lista-classificacoes"></ul>
+  </div>
+
+  <!-- Campo escondido que vai com o POST -->
+
+  <button type="submit">Filtrar</button>
+</form>
+
+<script>
+  const input = document.getElementById("classificacao-input");
+  const lista = document.getElementById("lista-classificacoes");
+  const hiddenInput = document.getElementById("id_classificacoes");
+  const classificacoes = [];
+
+  function adicionarClassificacao() {
+    const valor = input.value.trim();
+    if (valor && !classificacoes.includes(valor)) {
+      classificacoes.push(valor);
+      atualizarLista();
+    }
+    input.value = "";
+    input.focus();
+  }
+
+  function removerClassificacao(index) {
+    classificacoes.splice(index, 1);
+    atualizarLista();
+  }
+
+  function atualizarLista() {
+    lista.innerHTML = "";
+    classificacoes.forEach((c, index) => {
+      const item = document.createElement("li");
+      item.textContent = c + " ";
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = "Remover";
+      btn.onclick = () => removerClassificacao(index);
+      item.appendChild(btn);
+      lista.appendChild(item);
+    });
+
+    hiddenInput.value = classificacoes.join(",");
+  }
+</script>

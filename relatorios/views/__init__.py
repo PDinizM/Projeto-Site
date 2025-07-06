@@ -1,3 +1,4 @@
-from .views_balancete import *
-from .views_balancete_cbv import *
+from .balancete import *
+from .comparativo import *
+from .razao import *
 from .views_index import *

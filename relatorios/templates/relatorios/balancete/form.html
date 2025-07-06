@@ -2,10 +2,24 @@
 {% extends "relatorios/reports_form.html" %} 
 {% load static %}
 <!-- Aqui estou passando meu formulario HTML, dessa maneira nao fico tendo que criar o restante do site -->
-{{ request.session.balancete_form_inputs|json_script:"form-inicial" }}
+{% block card_color_class %}bg-balancete-light bg-gradient{% endblock %}
+
+{% block report_icon %}
+  <div class="icon-container icon-balancete">
+    <i class="bi bi-wallet2"></i>
+  </div>
+{% endblock%}
+
+{% block form_instructions_content %}Como utilizar o formulário: &#10;&#10;Opção: Cruzamento com ECF&#10; - Você pode enviar: uma empresa OU uma lista de empresas.&#10; - Resultado: Relatório em formato Excel (.xlsx).&#10;&#10;Opção: Balancete Normal&#10;- Uma empresa: Resultado em HTML.&#10;- Lista de empresas: Resultado em Excel.&#10;&#10;Opção: Balancete Consolidado&#10;- Você deve enviar: uma lista de empresas.&#10;- Resultado: Resultado em HTML.
+{% endblock form_instructions_content %}
+
+{% block report_color_class %}icon-balancete{% endblock %}
 
 {% block form_content %}
-<form action="{% url 'relatorios:balancete_relatorio_view' %}"
+
+{{ request.session.balancete_form_inputs|json_script:"form-inicial" }}
+
+<form action="{% url 'relatorios:balancete' %}"
   method="POST" 
   enctype="multipart/form-data" 
   id="reportForm" 
@@ -80,7 +94,7 @@
     </div>
 
     <!-- Cruzamento ECF -->
-    <div class="col-md-4 mb-3" x-show="exibirCruzamentoECF" x-transition>
+    <div class="col-md-4 mb-3" x-show="exibirCruzamentoECF">
       <div class="form-check">
         {{form.cruzamento_ecf}}
         <label class="form-check-label" for="{{ form.cruzamento_ecf.id_for_label }}">
@@ -90,7 +104,7 @@
     </div>
 
     <!-- Consolidado -->
-    <div class="col-md-4 mb-3" x-show="!exibirCruzamentoECF" x-transition>
+    <div class="col-md-4 mb-3" x-show="!exibirCruzamentoECF">
       <div class="form-check">
         {{form.consolidado}}
         <label class="form-check-label" for="{{ form.consolidado.id_for_label }}">

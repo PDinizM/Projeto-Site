@@ -8,7 +8,7 @@ html {
 
 body {
   background: transparent !important;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Roboto", sans-serif;
   padding-top: 70px;
   min-height: 100vh;
 }
@@ -20,6 +20,37 @@ main {
 .form-title {
   color: #131212;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos do Navbar */
+.dropdown-submenu {
+  position: relative;
+}
+
+.dropdown-submenu .dropdown-menu {
+  top: 0;
+  right: 100%;
+  left: auto;
+  margin-top: -1px;
+}
+
+/*Mostra o submenu ao passar o mouse*/
+@media (min-width: 992px) {
+  .dropdown-submenu:hover > .dropdown-menu {
+    display: block;
+  }
+}
+
+/*Melhora as setas nos itens com submenu*/
+.dropdown-item.dropdow-toggle::after {
+  display: inline-block;
+  vertical-align: 0.255em;
+  content: "";
+  border-top: 0.3em solid transparent;
+  border-right: 0;
+  border-bottom: 0.3em solid transparent;
+  border-left: 0.3em solid;
+  margin-left: 0.4em;
 }
 
 /* Remove as setinhas do input number */
@@ -88,54 +119,57 @@ input[type="number"] {
 
 /* Cores dos Ícones e Botões dos Cards */
 .icon-balancete {
-  color: #0d6efd;
+  color: #4169e1;
 }
 .btn-balancete {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
+  background-color: #4169e1;
+  border-color: #4169e1;
   color: #fff;
   font-weight: 500;
 }
 .btn-balancete:hover {
-  background-color: #0b5ed7;
-  border-color: #0a58ca;
+  background-color: #4169e1;
+  border-color: #4169e1;
 }
 
 .icon-razao {
-  color: #6f42c1;
+  color: #d2691e;
 }
 .btn-razao {
-  background-color: #6f42c1;
-  border-color: #6f42c1;
+  background-color: #d2691e;
+  border-color: #d2691e;
   color: #fff;
   font-weight: 500;
 }
 .btn-razao:hover {
-  background-color: #653bac;
-  border-color: #5f38a1;
+  background-color: #d2691e;
+  border-color: #d2691e;
 }
 
 .icon-comparativo {
-  color: #eb8d20;
+  color: #9932cc;
 }
 .btn-comparativo {
-  background-color: #eb8d20;
-  border-color: #eb8d20;
+  background-color: #9932cc;
+  border-color: #9932cc;
   color: #fff;
   font-weight: 500;
 }
 .btn-comparativo:hover {
-  background-color: #d37c1c;
-  border-color: #c0711a;
+  background-color: #9932cc;
+  border-color: #9932cc;
 }
 
 /* Fonte customizada para o Título da Página Inicial */
 .index-title {
-  font-family: "Roboto", sans-serif;
   font-weight: 700;
 }
 
 /*Estilos para o hero inicial*/
+.main-title {
+  font-family: "Roboto", sans-serif;
+  font-weight: 700; /* Usa a versão em negrito da fonte */
+}
 
 .hero-section-new .btn-primary {
   background-color: #4263eb;
@@ -157,6 +191,31 @@ input[type="number"] {
   background-color: #fff;
   border-color: #fff;
 }
+
+/*Balancete*/
+.bg-balancete-light {
+  background-color: rgba(255, 255, 255, 0.643) !important;
+}
+
+/* COMPARATIVO */
+.bg-comparativo-light {
+  background-color: rgba(255, 255, 255, 0.643) !important;
+}
+/*Estilos para o titulo dos formularios*/
+
+.report-title-header .icon-container {
+  font-size: 2.5rem; /*Tamanho do icone*/
+  margin: 0 auto 0.5rem auto; /*Centraliza e adiciona margem inferior*/
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #e8e2e2;
+  border: 1px solid #dee2e6;
+}
+
 /*Estilos para o Popover de Instruções */
 .card {
   position: relative;
@@ -330,15 +389,9 @@ body.loading-active #loading-overlay {
   pointer-events: all;
 }
 
-/* Estilos de Impressão */
+/* ESTILOS DE IMPRESSÃO - BALANCETE (PORTRAIT) E COMPARATIVO (LANDSCAPE) */
 @media print {
-  /* Configuração da Página */
-  @page {
-    size: A4 portrait;
-    margin: 1cm;
-  }
-
-  /* Ocultar Elementos Desnecessários */
+  /* --- REGRAS COMUNS AOS DOIS RELATÓRIOS --- */
   nav,
   footer,
   .action-buttons,
@@ -347,46 +400,11 @@ body.loading-active #loading-overlay {
     display: none !important;
   }
 
-  /* Reset do Layout Principal */
-  body,
-  html,
-  main,
-  .container,
-  .card,
-  .card-body,
-  #conteudo-para-exportar,
-  .table-responsive {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    overflow: visible !important;
-    background: #fff !important;
-  }
-
-  /* Estilos Gerais do Conteúdo Impresso */
   body {
     color: #000 !important;
-    font-size: 9pt !important;
-  }
-
-  .report-header {
-    margin-bottom: 20px !important;
-    padding-bottom: 10px !important;
-    border-bottom: 1px solid #ccc !important;
-  }
-
-  h1 {
-    font-size: 16pt !important;
-  }
-
-  /* Estilização da Tabela */
-  table#balancete {
-    width: 100% !important;
-    border-collapse: collapse !important;
-    font-size: 7.5pt !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background-color: #fff !important;
   }
 
   thead {
@@ -397,33 +415,176 @@ body.loading-active #loading-overlay {
     page-break-inside: avoid !important;
   }
 
-  th,
-  td {
+  /* --- BALANCETE (PORTRAIT) - MANTENDO O CÓDIGO QUE JÁ FUNCIONA --- */
+  @page portrait {
+    size: A4 portrait;
+    margin: 1cm;
+  }
+
+  .print-portrait {
+    page: portrait;
+  }
+
+  .print-portrait body,
+  .print-portrait html,
+  .print-portrait main,
+  .print-portrait .container,
+  .print-portrait .card,
+  .print-portrait .card-body,
+  .print-portrait #conteudo-para-exportar,
+  .print-portrait .table-responsive {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  .print-portrait body {
+    font-size: 9pt !important;
+  }
+
+  .print-portrait .report-header {
+    margin-bottom: 20px !important;
+    padding-bottom: 10px !important;
+    border-bottom: 1px solid #ccc !important;
+  }
+
+  .print-portrait h1 {
+    font-size: 16pt !important;
+  }
+
+  .print-portrait table#balancete {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 7.5pt !important;
+    table-layout: fixed !important;
+  }
+
+  .print-portrait th,
+  .print-portrait td {
     padding: 3px 5px !important;
     white-space: normal !important;
     word-wrap: break-word;
     text-align: left;
   }
 
-  /* Manter Cores de Fundo */
-  .table-dark {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+  .print-portrait .table-dark {
     background-color: #343a40 !important;
     color: #fff !important;
   }
 
-  .table-striped > tbody > tr:nth-of-type(odd) > td {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+  .print-portrait .table-striped > tbody > tr:nth-of-type(odd) > td {
     background-color: #f8f9fa !important;
   }
 
-  /* Alinhamentos Específicos */
-  #balancete .text-center {
+  .print-portrait #balancete .text-center {
     text-align: center !important;
   }
-  #balancete .text-end {
+
+  .print-portrait #balancete .text-end {
     text-align: right !important;
   }
+
+  /* --- COMPARATIVO (LANDSCAPE) - ESTILOS ESPECÍFICOS --- */
+  @page landscape {
+    size: A4 landscape;
+    margin: 1cm;
+  }
+  .print-landscape {
+    page: landscape;
+  }
+  .print-landscape body,
+  .print-landscape html {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+
+  .print-landscape .report-header h1 {
+    font-size: 14pt !important;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  .print-landscape table#comparativo {
+    width: 100% !important; /* Faz a tabela ocupar toda a largura da página paisagem */
+    table-layout: auto !important;
+    border-collapse: collapse !important;
+  }
+
+  .print-landscape table#comparativo th,
+  .print-landscape table#comparativo td {
+    padding: 3px 4px !important;
+    white-space: nowrap !important; /* Evita quebra de linha nos valores */
+    text-align: left;
+    border: 1px solid #ddd; /* Adiciona uma borda fina para melhor visualização */
+  }
+
+  /* Alinhamentos específicos */
+  .print-landscape table#comparativo .text-end {
+    text-align: right !important;
+  }
+  .print-landscape table#comparativo .text-center {
+    text-align: center !important;
+  }
+  .print-landscape table#comparativo .col-descricao {
+    white-space: normal !important; /* Permite que a descrição quebre a linha */
+  }
+
+  .print-landscape .table-dark {
+    background-color: #e9ecef !important; /* Cor mais clara para economizar tinta */
+    color: #000 !important;
+  }
+
+  /* Classes dinâmicas para ajuste de fonte - a lógica será aplicada via JS */
+  .print-landscape table#comparativo.colunas-ate6 {
+    font-size: 8pt !important;
+  }
+  .print-landscape table#comparativo.colunas-ate9 {
+    font-size: 7.5pt !important;
+  }
+  .print-landscape table#comparativo.colunas-ate12 {
+    font-size: 7pt !important;
+  }
+  .print-landscape table#comparativo.colunas-acima12 {
+    font-size: 6.5pt !important;
+  }
+}
+
+/* Garante que a coluna de descrição tenha um bom espaço */
+.table-fixed-cols th.col-descricao,
+.table-fixed-cols td:nth-child(3) {
+  min-width: 350px !important;
+}
+
+table.dataTable > tbody > tr > td {
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+table.dataTable thead th {
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+/* Remove a borda inferior geral da tabela que o DataTables adiciona */
+table.dataTable.no-footer {
+  border-bottom: none !important;
+}
+
+/* Garante que o cabeçalho fixo (colunas congeladas) tenha o fundo correto */
+table.DTFC_Cloned thead,
+table.DTFC_Cloned tfoot {
+  background-color: #212529;
+}
+
+tr.linha-sintetica > td {
+  font-weight: bold;
 }

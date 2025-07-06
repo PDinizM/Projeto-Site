@@ -8,7 +8,7 @@
 
     <div class="row align-items-center hero-section-new py-5">
         <div class="col-lg-6 text-center text-lg-start">
-            <h1 class="display-4 fw-bold lh-1 mb-4 index-title">Relatórios Financeiros<br>precisos e profissionais</h1>
+            <h1 class="display-4 fw-bold lh-1 main-title">Relatórios Financeiros<br>precisos e profissionais</h1>
             <p class="lead mb-4 text-light">
                 Gere relatórios detalhados e personalizados, com apenas alguns cliques.
             </p>
@@ -25,7 +25,7 @@
     </div>
 
     <div class="text-center my-5 hero-section" id="report-cards-section">
-        <h2 class="display-5 fw-bold text-white">Nossas Ferramentas</h2>
+        <h2 class="display-5 fw-bold main-title">Nossas Ferramentas</h2>
         <p class="lead text-light">
             Comece selecionando um dos relatórios abaixo :
         </p>
@@ -49,7 +49,7 @@
                         <li><i class="bi bi-check-circle-fill"></i> Movimentação do período</li>
                         <li><i class="bi bi-check-circle-fill"></i> Filtros personalizáveis</li>
                     </ul>
-                    <a href="{% url 'relatorios:balancete_relatorio_view' %}" class="btn btn-balancete mt-auto">Ir para Balancete</a>
+                    <a href="{% url 'relatorios:balancete' %}" class="btn btn-balancete mt-auto">Ir para Balancete</a>
                 </div>
             </div>
         </div>
@@ -93,7 +93,7 @@
                         <li><i class="bi bi-check-circle-fill"></i> Gráficos interativos</li>
                         <li><i class="bi bi-check-circle-fill"></i> Comparação de múltiplos períodos</li>
                     </ul>
-                    <a href="#" class="btn btn-comparativo mt-auto">Ir para Comparativo</a>
+                    <a href="{% url 'relatorios:comparativo' %}" class="btn btn-comparativo mt-auto">Ir para Comparativo</a>
                 </div>
             </div>
         </div>
